@@ -52,7 +52,7 @@ def soporte():
 
         # Enviar correo
         msg = Message("📩 Nuevo incidente de soporte registrado",
-                      recipients=["dferrigno@gmail.com"])
+                      recipients=["soporte@cloudsoftware.com.co"])
         msg.body = f"""Se ha registrado un nuevo incidente de soporte:
 
 Nombre: {nombre}
