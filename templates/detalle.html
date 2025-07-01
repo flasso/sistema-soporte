@@ -1,0 +1,15 @@
+<h2>Detalle del Caso #{{ caso[0] }}</h2>
+<p><strong>Cliente:</strong> {{ caso[1] }} ({{ caso[2] }})</p>
+<p><strong>Descripción:</strong><br>{{ caso[3] }}</p>
+<p><strong>Fecha de reporte:</strong> {{ caso[4] }}</p>
+
+{% if caso[5] %}
+<p><strong>Respuesta:</strong><br>{{ caso[5] }}</p>
+<p><strong>Fecha de respuesta:</strong> {{ caso[6] }}</p>
+{% else %}
+<form method="POST">
+  <label>Responder:</label><br>
+  <textarea name="respuesta" rows="5"></textarea><br><br>
+  <button type="submit">Enviar respuesta</button>
+</form>
+{% endif %}

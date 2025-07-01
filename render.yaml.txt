@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: soporte-web
+    env: python
+    buildCommand: ""
+    startCommand: "python app.py"
+    envVars:
+      - key: MAIL_USERNAME
+        value: tuusuario@gmail.com
+      - key: MAIL_PASSWORD
+        value: tu_app_password
