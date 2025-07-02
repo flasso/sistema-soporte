@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Panel de Administración</title>
+</head>
+<body>
+    <h1>Incidentes registrados</h1>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Archivo</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Respuesta</th>
+            <th>Archivo Respuesta</th>
+            <th>Acciones</th>
+        </tr>
+        {% for incidente in incidentes %}
+        <tr>
+            <td>{{ incidente.id }}</td>
+            <td>{{ incidente.nombre }}</td>
+            <td>{{ incidente.correo }}</td>
+            <td>{{ incidente.telefono }}</td>
+            <td>{{ incidente.tipo_problema }}</td>
+            <td>{{ incidente.descripcion }}</td>
+            <td>
+                {% if incidente.archivo %}
+                <a href="{{ url_for('uploaded_file', filename=incidente.archivo) }}" target="_blank">Ver</a>
+                {% endif %}
+            </td>
+            <td>{{ incidente.fecha }}</td>
+            <td>{{ incidente.estado }}</td>
+            <td>{{ incidente.respuesta }}</td>
+            <td>
+                {% if incidente.archivo_respuesta %}
+                <a href="{{ url_for('uploaded_file', filename=incidente.archivo_respuesta) }}" target="_blank">Ver</a>
+                {% endif %}
+            </td>
+            <td>
+                {% if incidente.estado == 'Abierto' %}
+                <form method="post" action="{{ url_for('responder', id=incidente.id) }}" enctype="multipart/form-data">
+                    <textarea name="respuesta" required></textarea><br>
+                    <input type="file" name="archivo_respuesta"><br>
+                    <button type="submit">Responder</button>
+                </form>
+                {% else %}
+                Cerrado
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
