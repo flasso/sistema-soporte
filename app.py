@@ -10,12 +10,12 @@ app = Flask(__name__)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'  # Cambia si es necesario
-app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'  # Usa una contraseña de aplicación
+app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'
+app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 mail = Mail(app)
 
-# Carpeta para archivos
+# Carpeta para guardar archivos
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -27,18 +27,18 @@ def crear_tabla():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS incidentes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT,
-        correo TEXT,
-        telefono TEXT,
-        fecha TEXT,
-        tipo_problema TEXT,
-        descripcion TEXT,
-        archivo TEXT DEFAULT '',
-        respuesta TEXT DEFAULT '',
-        archivo_respuesta TEXT DEFAULT '',
-        estado TEXT DEFAULT 'Abierto'
-    )''')
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT,
+                    correo TEXT,
+                    telefono TEXT,
+                    fecha TEXT,
+                    tipo_problema TEXT,
+                    descripcion TEXT,
+                    archivo TEXT DEFAULT '',
+                    respuesta TEXT DEFAULT '',
+                    archivo_respuesta TEXT DEFAULT '',
+                    estado TEXT DEFAULT 'Abierto'
+                )''')
     conn.commit()
     conn.close()
 
@@ -50,8 +50,8 @@ def soporte():
         nombre = request.form['nombre']
         correo = request.form['correo']
         telefono = request.form['telefono']
-        descripcion = request.form['descripcion']
         tipo_problema = request.form['tipo_problema']
+        descripcion = request.form['descripcion']
         archivo = request.files.get('archivo')
         archivo_nombre = ''
 
@@ -85,6 +85,7 @@ def soporte():
                 msg.attach(archivo_nombre, archivo.content_type, fp.read())
 
         mail.send(msg)
+
         return redirect(url_for('gracias'))
 
     return render_template('formulario.html')
@@ -119,24 +120,25 @@ def responder(id):
 
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute("UPDATE incidentes SET respuesta = ?, estado = ?, archivo_respuesta = ? WHERE id = ?", (respuesta, 'Cerrado', archivo_respuesta_nombre, id))
+    c.execute("UPDATE incidentes SET respuesta = ?, estado = ?, archivo_respuesta = ? WHERE id = ?",
+              (respuesta, 'Cerrado', archivo_respuesta_nombre, id))
     c.execute("SELECT correo FROM incidentes WHERE id = ?", (id,))
     correo_cliente = c.fetchone()[0]
     conn.commit()
     conn.close()
 
-    # Enviar correo con respuesta
-    msg = Message("Respuesta a tu incidente", recipients=[correo_cliente])
+    msg = Message("Respuesta a tu incidente",
+                  recipients=[correo_cliente])
     msg.body = f"Hola, esta es la respuesta a tu incidente:\n\n{respuesta}\n\nGracias por contactarnos."
     if archivo_respuesta_nombre:
         with app.open_resource(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre)) as fp:
             msg.attach(archivo_respuesta_nombre, archivo_respuesta.content_type, fp.read())
 
     mail.send(msg)
+
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
     crear_tabla()
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port, debug=True)
-
