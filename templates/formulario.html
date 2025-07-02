@@ -2,25 +2,35 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Registrar Incidente</title>
+    <title>Formulario de Soporte</title>
 </head>
 <body>
-    <h2>Registrar incidente de soporte</h2>
+    <h2>Registrar nuevo incidente de soporte</h2>
+    <form method="POST" action="/" enctype="multipart/form-data">
+        <label for="nombre">Nombre:</label><br>
+        <input type="text" id="nombre" name="nombre" required><br><br>
 
-    <form action="/" method="POST">
-        <label>Nombre:</label><br>
-        <input type="text" name="nombre" required><br><br>
+        <label for="correo">Correo:</label><br>
+        <input type="email" id="correo" name="correo" required><br><br>
 
-        <label>Correo electrónico:</label><br>
-        <input type="email" name="correo" required><br><br>
+        <label for="telefono">Teléfono:</label><br>
+        <input type="text" id="telefono" name="telefono" required><br><br>
 
-        <label>Teléfono:</label><br>
-        <input type="text" name="telefono"><br><br>
+        <label for="tipo_problema">Tipo de problema:</label><br>
+        <select name="tipo_problema" id="tipo_problema" required>
+            <option value="Bug">Bug</option>
+            <option value="Mejora">Mejora</option>
+            <option value="Funcionalidad">Funcionalidad</option>
+            <option value="Nueva opción">Nueva opción</option>
+        </select><br><br>
 
-        <label>Descripción del incidente:</label><br>
-        <textarea name="descripcion" rows="5" cols="40" required></textarea><br><br>
+        <label for="descripcion">Descripción del problema:</label><br>
+        <textarea id="descripcion" name="descripcion" rows="5" cols="40" required></textarea><br><br>
 
-        <button type="submit">Enviar</button>
+        <label for="archivo">Adjuntar archivo (opcional):</label><br>
+        <input type="file" id="archivo" name="archivo"><br><br>
+
+        <input type="submit" value="Enviar incidente">
     </form>
 </body>
 </html>

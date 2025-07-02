@@ -1,15 +1,27 @@
-<h2>Detalle del Caso #{{ caso[0] }}</h2>
-<p><strong>Cliente:</strong> {{ caso[1] }} ({{ caso[2] }})</p>
-<p><strong>Descripción:</strong><br>{{ caso[3] }}</p>
-<p><strong>Fecha de reporte:</strong> {{ caso[4] }}</p>
-
-{% if caso[5] %}
-<p><strong>Respuesta:</strong><br>{{ caso[5] }}</p>
-<p><strong>Fecha de respuesta:</strong> {{ caso[6] }}</p>
-{% else %}
-<form method="POST">
-  <label>Responder:</label><br>
-  <textarea name="respuesta" rows="5"></textarea><br><br>
-  <button type="submit">Enviar respuesta</button>
-</form>
-{% endif %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle del Incidente</title>
+</head>
+<body>
+    <h2>Detalle del incidente #{{ incidente.id }}</h2>
+    <p><strong>Fecha:</strong> {{ incidente.fecha }}</p>
+    <p><strong>Nombre:</strong> {{ incidente.nombre }}</p>
+    <p><strong>Correo:</strong> {{ incidente.correo }}</p>
+    <p><strong>Teléfono:</strong> {{ incidente.telefono }}</p>
+    <p><strong>Tipo:</strong> {{ incidente.tipo_problema }}</p>
+    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
+    {% if incidente.archivo %}
+        <p><strong>Archivo adjunto:</strong> <a href="/uploads/{{ incidente.archivo }}">Descargar</a></p>
+    {% endif %}
+    {% if incidente.respuesta %}
+        <h3>Respuesta:</h3>
+        <p>{{ incidente.respuesta }}</p>
+        {% if incidente.archivo_respuesta %}
+            <p><strong>Adjunto respuesta:</strong> <a href="/uploads/{{ incidente.archivo_respuesta }}">Descargar</a></p>
+        {% endif %}
+    {% endif %}
+    <a href="/admin">Volver al panel</a>
+</body>
+</html>
