@@ -12,6 +12,7 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'  # Cambia si es necesario
 app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'  # Usa una contraseña de aplicación
+app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 mail = Mail(app)
 
 # Carpeta para archivos
