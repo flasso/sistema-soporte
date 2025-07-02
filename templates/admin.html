@@ -1,55 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+    <meta charset="UTF-8">
     <title>Panel de Administración</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; vertical-align: top; }
+        form textarea { width: 100%; height: 80px; }
+        form input[type="file"] { margin-top: 10px; }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo img { max-width: 200px; }
+    </style>
 </head>
 <body>
-    <h1>Incidentes registrados</h1>
-    <table border="1">
+    <div class="logo">
+        <img src="https://cloudsoftware.com.co/logo.png" alt="Cloud Software SAS">
+    </div>
+    <h1>Panel de Incidentes</h1>
+    <table>
         <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Correo</th>
-            <th>Teléfono</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Empresa</th>
             <th>Tipo</th>
             <th>Descripción</th>
             <th>Archivo</th>
-            <th>Fecha</th>
-            <th>Estado</th>
             <th>Respuesta</th>
-            <th>Archivo Respuesta</th>
-            <th>Acciones</th>
         </tr>
         {% for incidente in incidentes %}
         <tr>
-            <td>{{ incidente.id }}</td>
-            <td>{{ incidente.nombre }}</td>
-            <td>{{ incidente.correo }}</td>
-            <td>{{ incidente.telefono }}</td>
-            <td>{{ incidente.tipo_problema }}</td>
-            <td>{{ incidente.descripcion }}</td>
+            <td>{{ incidente['fecha'] }}</td>
+            <td>{{ incidente['nombre'] }}<br>{{ incidente['correo'] }}<br>{{ incidente['telefono'] }}</td>
+            <td>{{ incidente['empresa'] }}</td>
+            <td>{{ incidente['tipo_problema'] }}</td>
+            <td>{{ incidente['descripcion'] }}</td>
             <td>
-                {% if incidente.archivo %}
-                <a href="{{ url_for('uploaded_file', filename=incidente.archivo) }}" target="_blank">Ver</a>
-                {% endif %}
-            </td>
-            <td>{{ incidente.fecha }}</td>
-            <td>{{ incidente.estado }}</td>
-            <td>{{ incidente.respuesta }}</td>
-            <td>
-                {% if incidente.archivo_respuesta %}
-                <a href="{{ url_for('uploaded_file', filename=incidente.archivo_respuesta) }}" target="_blank">Ver</a>
-                {% endif %}
+                {% if incidente['archivo'] %}
+                    <a href="/uploads/{{ incidente['archivo'] }}" target="_blank">Descargar</a>
+                {% else %}N/A{% endif %}
             </td>
             <td>
-                {% if incidente.estado == 'Abierto' %}
-                <form method="post" action="{{ url_for('responder', id=incidente.id) }}" enctype="multipart/form-data">
-                    <textarea name="respuesta" required></textarea><br>
-                    <input type="file" name="archivo_respuesta"><br>
-                    <button type="submit">Responder</button>
-                </form>
+                {% if incidente['estado'] == 'Abierto' %}
+                    <form method="POST" action="/responder/{{ incidente['id'] }}" enctype="multipart/form-data">
+                        <textarea name="respuesta" placeholder="Escribe tu respuesta..."></textarea>
+                        <input type="file" name="archivo_respuesta">
+                        <button type="submit">Enviar</button>
+                    </form>
                 {% else %}
-                Cerrado
+                    {{ incidente['respuesta'] }}
+                    {% if incidente['archivo_respuesta'] %}<br><a href="/uploads/{{ incidente['archivo_respuesta'] }}" target="_blank">Ver adjunto</a>{% endif %}
                 {% endif %}
             </td>
         </tr>

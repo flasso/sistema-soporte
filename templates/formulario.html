@@ -3,34 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <title>Formulario de Soporte</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        form { max-width: 600px; margin: auto; }
+        label { display: block; margin-top: 15px; }
+        input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; }
+        button { margin-top: 20px; padding: 10px 20px; }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo img { max-width: 200px; }
+    </style>
 </head>
 <body>
-    <h2>Registrar nuevo incidente de soporte</h2>
-    <form method="POST" action="/" enctype="multipart/form-data">
-        <label for="nombre">Nombre:</label><br>
-        <input type="text" id="nombre" name="nombre" required><br><br>
+    <div class="logo">
+        <img src="https://cloudsoftware.com.co/logo.png" alt="Cloud Software SAS">
+    </div>
+    <h2>Reporte de Incidente</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="nombre">Nombre</label>
+        <input type="text" name="nombre" required>
 
-        <label for="correo">Correo:</label><br>
-        <input type="email" id="correo" name="correo" required><br><br>
+        <label for="correo">Correo</label>
+        <input type="email" name="correo" required>
 
-        <label for="telefono">Teléfono:</label><br>
-        <input type="text" id="telefono" name="telefono" required><br><br>
+        <label for="telefono">Teléfono</label>
+        <input type="text" name="telefono" required>
 
-        <label for="tipo_problema">Tipo de problema:</label><br>
-        <select name="tipo_problema" id="tipo_problema" required>
-            <option value="Bug">Bug</option>
-            <option value="Mejora">Mejora</option>
-            <option value="Funcionalidad">Funcionalidad</option>
-            <option value="Nueva opción">Nueva opción</option>
-        </select><br><br>
+        <label for="empresa">Empresa</label>
+        <select name="empresa" required>
+            {% for empresa in empresas %}
+                <option value="{{ empresa }}">{{ empresa }}</option>
+            {% endfor %}
+        </select>
 
-        <label for="descripcion">Descripción del problema:</label><br>
-        <textarea id="descripcion" name="descripcion" rows="5" cols="40" required></textarea><br><br>
+        <label for="tipo_problema">Tipo de problema</label>
+        <select name="tipo_problema" required>
+            <option value="bug">Bug</option>
+            <option value="mejora">Mejora</option>
+            <option value="funcionalidad">Funcionalidad</option>
+            <option value="nueva opcion">Nueva opción</option>
+        </select>
 
-        <label for="archivo">Adjuntar archivo (opcional):</label><br>
-        <input type="file" id="archivo" name="archivo"><br><br>
+        <label for="descripcion">Descripción del incidente</label>
+        <textarea name="descripcion" rows="5" required></textarea>
 
-        <input type="submit" value="Enviar incidente">
+        <label for="archivo">Adjuntar archivo (opcional)</label>
+        <input type="file" name="archivo">
+
+        <button type="submit">Enviar incidente</button>
     </form>
 </body>
 </html>
+

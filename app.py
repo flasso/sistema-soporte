@@ -15,12 +15,12 @@ app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 mail = Mail(app)
 
-# Carpeta para guardar archivos
+# Configuración de subida de archivos
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Base de datos
+# Configuración base de datos
 DB = 'incidentes.db'
 
 def crear_tabla():
@@ -31,6 +31,7 @@ def crear_tabla():
                     nombre TEXT,
                     correo TEXT,
                     telefono TEXT,
+                    empresa TEXT,
                     fecha TEXT,
                     tipo_problema TEXT,
                     descripcion TEXT,
@@ -42,7 +43,39 @@ def crear_tabla():
     conn.commit()
     conn.close()
 
+def crear_tabla_empresas():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS empresas (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nombre TEXT NOT NULL UNIQUE
+                )''')
+    conn.commit()
+    conn.close()
+
+def insertar_empresas_iniciales():
+    empresas = [
+        'jhoyos', 'servimedios', 'century', 'abcsoft', 'dynamicsas',
+        'tecnologica andina', 'digitex', 'grupo omega', 'smartcloud',
+        'cloudservices', 'visiondata', 'softlogic', 'netandina',
+        'skytech', 'integra', 'open solutions', 'infomedia', 'softegral',
+        'geeksas', 'sisnova', 'conexion total', 'datared', 'nexus group',
+        'bluecode', 'megainet', 'sigmasas', 'atlanticsys', 'wisesoft',
+        'telesys', 'infotek'
+    ]
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    for empresa in empresas:
+        try:
+            c.execute("INSERT INTO empresas (nombre) VALUES (?)", (empresa,))
+        except sqlite3.IntegrityError:
+            pass
+    conn.commit()
+    conn.close()
+
 crear_tabla()
+crear_tabla_empresas()
+insertar_empresas_iniciales()
 
 @app.route('/', methods=['GET', 'POST'])
 def soporte():
@@ -50,8 +83,9 @@ def soporte():
         nombre = request.form['nombre']
         correo = request.form['correo']
         telefono = request.form['telefono']
-        tipo_problema = request.form['tipo_problema']
+        empresa = request.form['empresa']
         descripcion = request.form['descripcion']
+        tipo_problema = request.form['tipo_problema']
         archivo = request.files.get('archivo')
         archivo_nombre = ''
 
@@ -63,23 +97,19 @@ def soporte():
 
         conn = sqlite3.connect(DB)
         c = conn.cursor()
-        c.execute("INSERT INTO incidentes (nombre, correo, telefono, fecha, tipo_problema, descripcion, archivo) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                  (nombre, correo, telefono, fecha, tipo_problema, descripcion, archivo_nombre))
+        c.execute("INSERT INTO incidentes (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion, archivo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                  (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion, archivo_nombre))
         conn.commit()
         conn.close()
 
-        # Enviar correo a soporte
-        msg = Message(
-    subject="Nuevo incidente de soporte",
-    sender=app.config['MAIL_DEFAULT_SENDER'],
-    recipients=["soporte@cloudsoftware.com.co"]
-)
-
+        msg = Message("Nuevo incidente de soporte",
+                      recipients=["soporte@cloudsoftware.com.co"])
         msg.body = f"""
         Nuevo incidente:
         Nombre: {nombre}
         Correo: {correo}
         Teléfono: {telefono}
+        Empresa: {empresa}
         Tipo de problema: {tipo_problema}
         Descripción: {descripcion}
         Fecha: {fecha}
@@ -92,7 +122,12 @@ def soporte():
 
         return redirect(url_for('gracias'))
 
-    return render_template('formulario.html')
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute("SELECT nombre FROM empresas ORDER BY nombre ASC")
+    empresas = [fila[0] for fila in c.fetchall()]
+    conn.close()
+    return render_template('formulario.html', empresas=empresas)
 
 @app.route('/gracias')
 def gracias():
@@ -124,19 +159,14 @@ def responder(id):
 
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute("UPDATE incidentes SET respuesta = ?, estado = ?, archivo_respuesta = ? WHERE id = ?",
-              (respuesta, 'Cerrado', archivo_respuesta_nombre, id))
+    c.execute("UPDATE incidentes SET respuesta = ?, estado = ?, archivo_respuesta = ? WHERE id = ?", (respuesta, 'Cerrado', archivo_respuesta_nombre, id))
     c.execute("SELECT correo FROM incidentes WHERE id = ?", (id,))
     correo_cliente = c.fetchone()[0]
     conn.commit()
     conn.close()
 
-    msg = Message(
-    subject="Respuesta a tu incidente",
-    sender=app.config['MAIL_DEFAULT_SENDER'],
-    recipients=[correo_cliente]
-)
-
+    msg = Message("Respuesta a tu incidente",
+                  recipients=[correo_cliente])
     msg.body = f"Hola, esta es la respuesta a tu incidente:\n\n{respuesta}\n\nGracias por contactarnos."
     if archivo_respuesta_nombre:
         with app.open_resource(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre)) as fp:
@@ -147,6 +177,6 @@ def responder(id):
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    crear_tabla()
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)
+
