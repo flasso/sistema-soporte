@@ -69,8 +69,12 @@ def soporte():
         conn.close()
 
         # Enviar correo a soporte
-        msg = Message("Nuevo incidente de soporte",
-                      recipients=["soporte@cloudsoftware.com.co"])
+        msg = Message(
+    subject="Nuevo incidente de soporte",
+    sender=app.config['MAIL_DEFAULT_SENDER'],
+    recipients=["soporte@cloudsoftware.com.co"]
+)
+
         msg.body = f"""
         Nuevo incidente:
         Nombre: {nombre}
@@ -127,8 +131,12 @@ def responder(id):
     conn.commit()
     conn.close()
 
-    msg = Message("Respuesta a tu incidente",
-                  recipients=[correo_cliente])
+    msg = Message(
+    subject="Respuesta a tu incidente",
+    sender=app.config['MAIL_DEFAULT_SENDER'],
+    recipients=[correo_cliente]
+)
+
     msg.body = f"Hola, esta es la respuesta a tu incidente:\n\n{respuesta}\n\nGracias por contactarnos."
     if archivo_respuesta_nombre:
         with app.open_resource(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre)) as fp:
