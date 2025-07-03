@@ -3,6 +3,7 @@ from flask_mail import Mail, Message
 import sqlite3
 import os
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -22,6 +23,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 DB = 'incidentes.db'
 
+def hora_colombia():
+    zona = pytz.timezone('America/Bogota')
+    return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
+
 def crear_tabla():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
@@ -37,6 +42,7 @@ def crear_tabla():
         archivo TEXT DEFAULT '',
         respuesta TEXT DEFAULT '',
         archivo_respuesta TEXT DEFAULT '',
+        fecha_respuesta TEXT DEFAULT '',
         estado TEXT DEFAULT 'Abierto'
     )''')
     conn.commit()
@@ -54,12 +60,13 @@ def crear_tabla_empresas():
 
 def insertar_empresas_iniciales():
     empresas = [
-         'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
+        'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
         'Century', 'CNM', 'Contructora de Marcas', 'DORTIZ',
         'Elite', 'Factorial', 'Grupo One', 'Zelva',
         'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges',
         'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV',
         'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
+
     ]
     conn = sqlite3.connect(DB)
     c = conn.cursor()
@@ -71,21 +78,9 @@ def insertar_empresas_iniciales():
     conn.commit()
     conn.close()
 
-def agregar_columna_fecha_respuesta():
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    try:
-        c.execute("ALTER TABLE incidentes ADD COLUMN fecha_respuesta TEXT")
-        print("Columna fecha_respuesta agregada.")
-    except sqlite3.OperationalError:
-        print("La columna fecha_respuesta ya existe.")
-    conn.commit()
-    conn.close()
-
 crear_tabla()
 crear_tabla_empresas()
 insertar_empresas_iniciales()
-agregar_columna_fecha_respuesta()
 
 @app.route('/', methods=['GET', 'POST'])
 def soporte():
@@ -103,7 +98,7 @@ def soporte():
             archivo_nombre = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo.filename}"
             archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], archivo_nombre))
 
-        fecha = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fecha = hora_colombia()
 
         conn = sqlite3.connect(DB)
         c = conn.cursor()
@@ -157,7 +152,7 @@ def admin():
     cerrados = 0
 
     for row in rows:
-        incidente = dict(row)  # convierte a diccionario mutable
+        incidente = dict(row)
 
         if incidente['estado'] == 'Abierto':
             pendientes += 1
@@ -182,8 +177,6 @@ def admin():
         cerrados=cerrados
     )
 
-
-
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
@@ -198,11 +191,7 @@ def responder(id):
         archivo_respuesta_nombre = f"respuesta_{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo_respuesta.filename}"
         archivo_respuesta.save(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre))
 
-    from datetime import datetime, timedelta
-
-	hora_colombia = datetime.utcnow() - timedelta(hours=5)
-	fecha = hora_colombia.strftime('%Y-%m-%d %H:%M:%S')
-
+    fecha_respuesta = hora_colombia()
 
     conn = sqlite3.connect(DB)
     c = conn.cursor()
@@ -227,3 +216,4 @@ def responder(id):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
