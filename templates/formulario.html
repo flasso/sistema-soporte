@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="logo">
-        <img src="https://cloudsoftware.com.co/logo.png" alt="Cloud Software SAS">
+	<img src="{{ url_for('static', filename='logo.png') }}" alt="Cloud Software SAS">
     </div>
     <h2>Reporte de Incidente</h2>
     <form method="POST" enctype="multipart/form-data">

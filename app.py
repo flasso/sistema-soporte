@@ -55,14 +55,12 @@ def crear_tabla_empresas():
 
 def insertar_empresas_iniciales():
     empresas = [
-        'jhoyos', 'servimedios', 'century', 'abcsoft', 'dynamicsas',
-        'tecnologica andina', 'digitex', 'grupo omega', 'smartcloud',
-        'cloudservices', 'visiondata', 'softlogic', 'netandina',
-        'skytech', 'integra', 'open solutions', 'infomedia', 'softegral',
-        'geeksas', 'sisnova', 'conexion total', 'datared', 'nexus group',
-        'bluecode', 'megainet', 'sigmasas', 'atlanticsys', 'wisesoft',
-        'telesys', 'infotek'
-    ]
+        'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
+        'Century', 'CNM', 'Contructora de Marcas', 'DORTIZ',
+        'Elite', 'Factorial', 'Grupo One', 'Zelva',
+        'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges',
+        'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV',
+        'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'    ]
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     for empresa in empresas:
