@@ -157,7 +157,8 @@ def admin():
     cerrados = 0
 
     for row in rows:
-        incidente = dict(row)  # ⚠️ Aquí convertimos a dict mutable
+        incidente = dict(row)  # convierte a diccionario mutable
+
         if incidente['estado'] == 'Abierto':
             pendientes += 1
             incidente['tiempo_resolucion'] = '-'
@@ -174,7 +175,13 @@ def admin():
 
         incidentes.append(incidente)
 
-    return render_template('admin.html', incidentes=incidentes, pendientes=pendientes, cerrados=cerrados)
+    return render_template(
+        'admin.html',
+        incidentes=incidentes,
+        pendientes=pendientes,
+        cerrados=cerrados
+    )
+
 
 
 @app.route('/uploads/<filename>')
@@ -191,7 +198,11 @@ def responder(id):
         archivo_respuesta_nombre = f"respuesta_{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo_respuesta.filename}"
         archivo_respuesta.save(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre))
 
-    fecha_respuesta = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    from datetime import datetime, timedelta
+
+	hora_colombia = datetime.utcnow() - timedelta(hours=5)
+	fecha = hora_colombia.strftime('%Y-%m-%d %H:%M:%S')
+
 
     conn = sqlite3.connect(DB)
     c = conn.cursor()
