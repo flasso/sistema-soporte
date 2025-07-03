@@ -15,31 +15,30 @@ app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 mail = Mail(app)
 
-# Configuración de subida de archivos
+# Carpeta de archivos
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# Configuración base de datos
 DB = 'incidentes.db'
 
 def crear_tabla():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS incidentes (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nombre TEXT,
-                    correo TEXT,
-                    telefono TEXT,
-                    empresa TEXT,
-                    fecha TEXT,
-                    tipo_problema TEXT,
-                    descripcion TEXT,
-                    archivo TEXT DEFAULT '',
-                    respuesta TEXT DEFAULT '',
-                    archivo_respuesta TEXT DEFAULT '',
-                    estado TEXT DEFAULT 'Abierto'
-                )''')
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT,
+        correo TEXT,
+        telefono TEXT,
+        empresa TEXT,
+        fecha TEXT,
+        tipo_problema TEXT,
+        descripcion TEXT,
+        archivo TEXT DEFAULT '',
+        respuesta TEXT DEFAULT '',
+        archivo_respuesta TEXT DEFAULT '',
+        estado TEXT DEFAULT 'Abierto'
+    )''')
     conn.commit()
     conn.close()
 
@@ -47,20 +46,21 @@ def crear_tabla_empresas():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     c.execute('''CREATE TABLE IF NOT EXISTS empresas (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nombre TEXT NOT NULL UNIQUE
-                )''')
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL UNIQUE
+    )''')
     conn.commit()
     conn.close()
 
 def insertar_empresas_iniciales():
     empresas = [
-        'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
+         'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
         'Century', 'CNM', 'Contructora de Marcas', 'DORTIZ',
         'Elite', 'Factorial', 'Grupo One', 'Zelva',
         'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges',
         'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV',
-        'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'    ]
+        'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
+    ]
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     for empresa in empresas:
@@ -71,9 +71,21 @@ def insertar_empresas_iniciales():
     conn.commit()
     conn.close()
 
+def agregar_columna_fecha_respuesta():
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    try:
+        c.execute("ALTER TABLE incidentes ADD COLUMN fecha_respuesta TEXT")
+        print("Columna fecha_respuesta agregada.")
+    except sqlite3.OperationalError:
+        print("La columna fecha_respuesta ya existe.")
+    conn.commit()
+    conn.close()
+
 crear_tabla()
 crear_tabla_empresas()
 insertar_empresas_iniciales()
+agregar_columna_fecha_respuesta()
 
 @app.route('/', methods=['GET', 'POST'])
 def soporte():
@@ -139,7 +151,21 @@ def admin():
     c.execute("SELECT * FROM incidentes ORDER BY fecha DESC")
     incidentes = c.fetchall()
     conn.close()
-    return render_template('admin.html', incidentes=incidentes)
+
+    pendientes = sum(1 for i in incidentes if i['estado'] == 'Abierto')
+    cerrados = sum(1 for i in incidentes if i['estado'] == 'Cerrado')
+
+    for incidente in incidentes:
+        if incidente['estado'] == 'Cerrado' and incidente['fecha_respuesta']:
+            inicio = datetime.strptime(incidente['fecha'], '%Y-%m-%d %H:%M:%S')
+            fin = datetime.strptime(incidente['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
+            diff = fin - inicio
+            horas = diff.total_seconds() / 3600
+            incidente['tiempo_resolucion'] = f"{horas:.1f} horas"
+        else:
+            incidente['tiempo_resolucion'] = '-'
+
+    return render_template('admin.html', incidentes=incidentes, pendientes=pendientes, cerrados=cerrados)
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
@@ -155,9 +181,12 @@ def responder(id):
         archivo_respuesta_nombre = f"respuesta_{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo_respuesta.filename}"
         archivo_respuesta.save(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre))
 
+    fecha_respuesta = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute("UPDATE incidentes SET respuesta = ?, estado = ?, archivo_respuesta = ? WHERE id = ?", (respuesta, 'Cerrado', archivo_respuesta_nombre, id))
+    c.execute("UPDATE incidentes SET respuesta = ?, estado = ?, archivo_respuesta = ?, fecha_respuesta = ? WHERE id = ?",
+              (respuesta, 'Cerrado', archivo_respuesta_nombre, fecha_respuesta, id))
     c.execute("SELECT correo FROM incidentes WHERE id = ?", (id,))
     correo_cliente = c.fetchone()[0]
     conn.commit()
@@ -177,4 +206,3 @@ def responder(id):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
