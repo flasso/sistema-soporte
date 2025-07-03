@@ -149,23 +149,33 @@ def admin():
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute("SELECT * FROM incidentes ORDER BY fecha DESC")
-    incidentes = c.fetchall()
+    rows = c.fetchall()
     conn.close()
 
-    pendientes = sum(1 for i in incidentes if i['estado'] == 'Abierto')
-    cerrados = sum(1 for i in incidentes if i['estado'] == 'Cerrado')
+    incidentes = []
+    pendientes = 0
+    cerrados = 0
 
-    for incidente in incidentes:
-        if incidente['estado'] == 'Cerrado' and incidente['fecha_respuesta']:
-            inicio = datetime.strptime(incidente['fecha'], '%Y-%m-%d %H:%M:%S')
-            fin = datetime.strptime(incidente['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
-            diff = fin - inicio
-            horas = diff.total_seconds() / 3600
-            incidente['tiempo_resolucion'] = f"{horas:.1f} horas"
-        else:
+    for row in rows:
+        incidente = dict(row)  # ⚠️ Aquí convertimos a dict mutable
+        if incidente['estado'] == 'Abierto':
+            pendientes += 1
             incidente['tiempo_resolucion'] = '-'
+        else:
+            cerrados += 1
+            if incidente['fecha_respuesta']:
+                inicio = datetime.strptime(incidente['fecha'], '%Y-%m-%d %H:%M:%S')
+                fin = datetime.strptime(incidente['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
+                diff = fin - inicio
+                horas = diff.total_seconds() / 3600
+                incidente['tiempo_resolucion'] = f"{horas:.1f} horas"
+            else:
+                incidente['tiempo_resolucion'] = '-'
+
+        incidentes.append(incidente)
 
     return render_template('admin.html', incidentes=incidentes, pendientes=pendientes, cerrados=cerrados)
+
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
