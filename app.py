@@ -35,7 +35,8 @@ def get_conn():
         database=DB_NAME,
         user=DB_USER,
         password=DB_PASSWORD,
-        port=DB_PORT
+        port=DB_PORT,
+        sslmode='require'
     )
 
 @app.route('/', methods=['GET', 'POST'])
