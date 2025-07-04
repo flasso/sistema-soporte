@@ -1,13 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for
 from flask_mail import Mail, Message
-import sqlite3
-import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from datetime import datetime
 import pytz
+import os
 
 app = Flask(__name__)
 
-# Configuración de Flask-Mail
+# Configuración Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -16,74 +17,32 @@ app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 mail = Mail(app)
 
-# Carpeta de archivos
-UPLOAD_FOLDER = 'uploads'
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-DB = 'incidentes.db'
-
+# Función para hora Colombia
 def hora_colombia():
     zona = pytz.timezone('America/Bogota')
     return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
 
-def crear_tabla():
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS incidentes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT,
-        correo TEXT,
-        telefono TEXT,
-        empresa TEXT,
-        fecha TEXT,
-        tipo_problema TEXT,
-        descripcion TEXT,
-        archivo TEXT DEFAULT '',
-        respuesta TEXT DEFAULT '',
-        archivo_respuesta TEXT DEFAULT '',
-        fecha_respuesta TEXT DEFAULT '',
-        estado TEXT DEFAULT 'Abierto'
-    )''')
-    conn.commit()
-    conn.close()
+# Datos conexión Supabase
+DB_HOST = 'db.xwjlcybhculqowtsgdia.supabase.co'
+DB_PORT = 5432
+DB_NAME = 'postgres'
+DB_USER = 'postgres'
+DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
 
-def crear_tabla_empresas():
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS empresas (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL UNIQUE
-    )''')
-    conn.commit()
-    conn.close()
-
-def insertar_empresas_iniciales():
-    empresas = [
-        'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
-        'Century', 'CNM', 'Contructora de Marcas', 'DORTIZ',
-        'Elite', 'Factorial', 'Grupo One', 'Zelva',
-        'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges',
-        'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV',
-        'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
-
-    ]
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    for empresa in empresas:
-        try:
-            c.execute("INSERT INTO empresas (nombre) VALUES (?)", (empresa,))
-        except sqlite3.IntegrityError:
-            pass
-    conn.commit()
-    conn.close()
-
-crear_tabla()
-crear_tabla_empresas()
-insertar_empresas_iniciales()
+def get_conn():
+    return psycopg2.connect(
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        port=DB_PORT
+    )
 
 @app.route('/', methods=['GET', 'POST'])
 def soporte():
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
     if request.method == 'POST':
         nombre = request.form['nombre']
         correo = request.form['correo']
@@ -91,124 +50,85 @@ def soporte():
         empresa = request.form['empresa']
         descripcion = request.form['descripcion']
         tipo_problema = request.form['tipo_problema']
-        archivo = request.files.get('archivo')
-        archivo_nombre = ''
-
-        if archivo and archivo.filename:
-            archivo_nombre = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo.filename}"
-            archivo.save(os.path.join(app.config['UPLOAD_FOLDER'], archivo_nombre))
-
         fecha = hora_colombia()
 
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        c.execute("INSERT INTO incidentes (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion, archivo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                  (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion, archivo_nombre))
+        cur.execute("""
+            INSERT INTO incidentes (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion, estado)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Abierto')
+        """, (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion))
         conn.commit()
-        conn.close()
 
-        msg = Message("Nuevo incidente de soporte",
-                      recipients=["soporte@cloudsoftware.com.co"])
-        msg.body = f"""
-        Nuevo incidente:
-        Nombre: {nombre}
-        Correo: {correo}
-        Teléfono: {telefono}
-        Empresa: {empresa}
-        Tipo de problema: {tipo_problema}
-        Descripción: {descripcion}
-        Fecha: {fecha}
-        """
-        if archivo_nombre:
-            with app.open_resource(os.path.join(app.config['UPLOAD_FOLDER'], archivo_nombre)) as fp:
-                msg.attach(archivo_nombre, archivo.content_type, fp.read())
-
+        msg = Message("Nuevo incidente de soporte", recipients=["soporte@cloudsoftware.com.co"])
+        msg.body = f"""Nuevo incidente:
+Nombre: {nombre}
+Correo: {correo}
+Teléfono: {telefono}
+Empresa: {empresa}
+Tipo: {tipo_problema}
+Descripción: {descripcion}
+Fecha: {fecha}"""
         mail.send(msg)
 
+        conn.close()
         return redirect(url_for('gracias'))
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute("SELECT nombre FROM empresas ORDER BY nombre ASC")
-    empresas = [fila[0] for fila in c.fetchall()]
+    cur.execute("SELECT nombre FROM empresas ORDER BY nombre ASC")
+    empresas = [e['nombre'] for e in cur.fetchall()]
     conn.close()
+
     return render_template('formulario.html', empresas=empresas)
 
 @app.route('/gracias')
 def gracias():
-    return "Gracias por enviar tu incidente. Nuestro equipo lo atenderá pronto."
+    return "Gracias por reportar tu incidente. Te responderemos pronto."
 
 @app.route('/admin')
 def admin():
-    conn = sqlite3.connect(DB)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM incidentes ORDER BY fecha DESC")
-    rows = c.fetchall()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    cur.execute("SELECT * FROM incidentes ORDER BY fecha DESC")
+    rows = cur.fetchall()
     conn.close()
 
     incidentes = []
-    pendientes = 0
-    cerrados = 0
+    pendientes = sum(1 for r in rows if r['estado'] == 'Abierto')
+    cerrados = sum(1 for r in rows if r['estado'] != 'Abierto')
 
-    for row in rows:
-        incidente = dict(row)
-
-        if incidente['estado'] == 'Abierto':
-            pendientes += 1
-            incidente['tiempo_resolucion'] = '-'
+    for r in rows:
+        incidente = dict(r)
+        if incidente['estado'] != 'Abierto' and incidente['fecha_respuesta']:
+            inicio = datetime.strptime(incidente['fecha'], '%Y-%m-%d %H:%M:%S')
+            fin = datetime.strptime(incidente['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
+            diff = fin - inicio
+            horas = diff.total_seconds() / 3600
+            incidente['tiempo_resolucion'] = f"{horas:.1f} horas"
         else:
-            cerrados += 1
-            if incidente['fecha_respuesta']:
-                inicio = datetime.strptime(incidente['fecha'], '%Y-%m-%d %H:%M:%S')
-                fin = datetime.strptime(incidente['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
-                diff = fin - inicio
-                horas = diff.total_seconds() / 3600
-                incidente['tiempo_resolucion'] = f"{horas:.1f} horas"
-            else:
-                incidente['tiempo_resolucion'] = '-'
-
+            incidente['tiempo_resolucion'] = '-'
         incidentes.append(incidente)
 
-    return render_template(
-        'admin.html',
-        incidentes=incidentes,
-        pendientes=pendientes,
-        cerrados=cerrados
-    )
-
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    return render_template('admin.html', incidentes=incidentes, pendientes=pendientes, cerrados=cerrados)
 
 @app.route('/responder/<int:id>', methods=['POST'])
 def responder(id):
     respuesta = request.form['respuesta']
-    archivo_respuesta = request.files.get('archivo_respuesta')
-    archivo_respuesta_nombre = ''
-
-    if archivo_respuesta and archivo_respuesta.filename:
-        archivo_respuesta_nombre = f"respuesta_{datetime.now().strftime('%Y%m%d%H%M%S')}_{archivo_respuesta.filename}"
-        archivo_respuesta.save(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre))
-
     fecha_respuesta = hora_colombia()
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute("UPDATE incidentes SET respuesta = ?, estado = ?, archivo_respuesta = ?, fecha_respuesta = ? WHERE id = ?",
-              (respuesta, 'Cerrado', archivo_respuesta_nombre, fecha_respuesta, id))
-    c.execute("SELECT correo FROM incidentes WHERE id = ?", (id,))
-    correo_cliente = c.fetchone()[0]
+    conn = get_conn()
+    cur = conn.cursor()
+
+    cur.execute("UPDATE incidentes SET respuesta=%s, estado='Cerrado', fecha_respuesta=%s WHERE id=%s",
+                (respuesta, fecha_respuesta, id))
     conn.commit()
+
+    cur.execute("SELECT correo FROM incidentes WHERE id=%s", (id,))
+    correo_cliente = cur.fetchone()[0]
     conn.close()
 
-    msg = Message("Respuesta a tu incidente",
-                  recipients=[correo_cliente])
-    msg.body = f"Hola, esta es la respuesta a tu incidente:\n\n{respuesta}\n\nGracias por contactarnos."
-    if archivo_respuesta_nombre:
-        with app.open_resource(os.path.join(app.config['UPLOAD_FOLDER'], archivo_respuesta_nombre)) as fp:
-            msg.attach(archivo_respuesta_nombre, archivo_respuesta.content_type, fp.read())
-
+    msg = Message("Respuesta a tu incidente", recipients=[correo_cliente])
+    msg.body = f"""Hola, esta es la respuesta a tu incidente:
+{respuesta}
+Gracias por contactarnos."""
     mail.send(msg)
 
     return redirect(url_for('admin'))
@@ -216,5 +136,3 @@ def responder(id):
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
-
