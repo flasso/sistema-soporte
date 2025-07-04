@@ -1,5 +1,6 @@
-Flask
-Flask-Mail
-psycopg2-binary
-pytz
-
+Flask>=3.1
+Flask-Mail>=0.10
+psycopg2-binary>=2.9
+pytz>=2024.1
+Werkzeug>=3.0
+Jinja2>=3.1
