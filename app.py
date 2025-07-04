@@ -22,9 +22,9 @@ def hora_colombia():
     zona = pytz.timezone('America/Bogota')
     return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
 
-# Datos conexión Supabase
+# Datos conexión Supabase con Connection Pooling (pgbouncer)
 DB_HOST = 'db.xwjlcybhculqowtsgdia.supabase.co'
-DB_PORT = 5432
+DB_PORT = 6543  # puerto de connection pooling
 DB_NAME = 'postgres'
 DB_USER = 'postgres'
 DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
