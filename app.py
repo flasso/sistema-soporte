@@ -8,7 +8,6 @@ import os
 
 app = Flask(__name__)
 
-# Configuración Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -17,32 +16,20 @@ app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 mail = Mail(app)
 
-# Función para hora Colombia
 def hora_colombia():
     zona = pytz.timezone('America/Bogota')
     return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
 
-# Datos conexión Supabase con Connection Pooling (pgbouncer)
-DB_HOST = 'db.xwjlcybhculqowtsgdia.supabase.co'
-DB_PORT = 6543  # puerto de connection pooling
-DB_NAME = 'postgres'
-DB_USER = 'postgres'
-DB_PASSWORD = os.environ.get('DB_PASSWORD', '')
+# Usa la connection string del pooler desde variable de entorno
+DB_URL = os.environ.get('DATABASE_URL', '')
 
 def get_conn():
-    return psycopg2.connect(
-        host=DB_HOST,
-        database=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        port=DB_PORT,
-        sslmode='require'
-    )
+    return psycopg2.connect(DB_URL, sslmode='require', cursor_factory=RealDictCursor)
 
 @app.route('/', methods=['GET', 'POST'])
 def soporte():
     conn = get_conn()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur = conn.cursor()
 
     if request.method == 'POST':
         nombre = request.form['nombre']
@@ -86,7 +73,7 @@ def gracias():
 @app.route('/admin')
 def admin():
     conn = get_conn()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur = conn.cursor()
 
     cur.execute("SELECT * FROM incidentes ORDER BY fecha DESC")
     rows = cur.fetchall()
@@ -97,16 +84,15 @@ def admin():
     cerrados = sum(1 for r in rows if r['estado'] != 'Abierto')
 
     for r in rows:
-        incidente = dict(r)
-        if incidente['estado'] != 'Abierto' and incidente['fecha_respuesta']:
-            inicio = datetime.strptime(incidente['fecha'], '%Y-%m-%d %H:%M:%S')
-            fin = datetime.strptime(incidente['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
+        if r['estado'] != 'Abierto' and r['fecha_respuesta']:
+            inicio = datetime.strptime(r['fecha'], '%Y-%m-%d %H:%M:%S')
+            fin = datetime.strptime(r['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
             diff = fin - inicio
             horas = diff.total_seconds() / 3600
-            incidente['tiempo_resolucion'] = f"{horas:.1f} horas"
+            r['tiempo_resolucion'] = f"{horas:.1f} horas"
         else:
-            incidente['tiempo_resolucion'] = '-'
-        incidentes.append(incidente)
+            r['tiempo_resolucion'] = '-'
+        incidentes.append(r)
 
     return render_template('admin.html', incidentes=incidentes, pendientes=pendientes, cerrados=cerrados)
 
