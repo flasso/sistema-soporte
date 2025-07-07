@@ -2,21 +2,16 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Panel de Administración</title>
+<title>Incidentes Reportados</title>
 <style>
-body { font-family: Arial, sans-serif; margin: 20px; }
-h1 { color: #333; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-th { background-color: #f8f8f8; }
-.estado-pendiente { color: red; font-weight: bold; }
-.estado-resuelto { color: green; font-weight: bold; }
-form textarea { width: 100%; height: 80px; }
-form input[type="submit"] { margin-top: 5px; padding: 5px 10px; }
+body { font-family: Arial; margin: 30px; }
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ccc; padding: 8px; }
+th { background-color: #f2f2f2; }
 </style>
 </head>
 <body>
-<h1>Panel de Administración</h1>
+<h2>Incidentes Reportados</h2>
 <table>
 <thead>
 <tr>
@@ -29,33 +24,20 @@ form input[type="submit"] { margin-top: 5px; padding: 5px 10px; }
 <th>Descripción</th>
 <th>Fecha</th>
 <th>Estado</th>
-<th>Respuesta</th>
-<th>Acción</th>
 </tr>
 </thead>
 <tbody>
-{% for incidente in incidentes %}
+{% for inc in incidentes %}
 <tr>
-<td>{{ incidente.id }}</td>
-<td>{{ incidente.nombre }}</td>
-<td>{{ incidente.correo }}</td>
-<td>{{ incidente.telefono }}</td>
-<td>{{ incidente.empresa }}</td>
-<td>{{ incidente.tipo_problema }}</td>
-<td>{{ incidente.descripcion }}</td>
-<td>{{ incidente.fecha }}</td>
-<td class="{{ 'estado-resuelto' if incidente.estado == 'resuelto' else 'estado-pendiente' }}">{{ incidente.estado }}</td>
-<td>{{ incidente.respuesta or '' }}</td>
-<td>
-{% if incidente.estado != 'resuelto' %}
-<form method="POST" action="{{ url_for('responder', id=incidente.id) }}">
-<textarea name="respuesta" required></textarea>
-<input type="submit" value="Responder">
-</form>
-{% else %}
--
-{% endif %}
-</td>
+<td>{{ inc.id }}</td>
+<td>{{ inc.nombre }}</td>
+<td>{{ inc.correo }}</td>
+<td>{{ inc.telefono }}</td>
+<td>{{ inc.empresa }}</td>
+<td>{{ inc.tipo_problema }}</td>
+<td>{{ inc.descripcion }}</td>
+<td>{{ inc.fecha_reporte }}</td>
+<td>{{ inc.estado }}</td>
 </tr>
 {% endfor %}
 </tbody>
