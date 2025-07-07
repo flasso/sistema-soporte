@@ -20,7 +20,7 @@ def hora_colombia():
     zona = pytz.timezone('America/Bogota')
     return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
 
-DB_URL = os.environ.get('DATABASE_URL')
+DB_URL = os.environ.get('DATABASE_URL')  # esta la obtiene del entorno
 
 def get_conn():
     return psycopg2.connect(DB_URL, sslmode='require', cursor_factory=RealDictCursor)
