@@ -15,11 +15,13 @@
     <label>Correo: <input type="email" name="correo" required></label><br>
     <label>Teléfono: <input type="text" name="telefono" required></label><br>
     <label>Empresa:
-        <select name="empresa">
-            {% for empresa in empresas %}
-            <option value="{{ empresa }}">{{ empresa }}</option>
-            {% endfor %}
-        </select>
+        <select name="empresa" required>
+   	 <option value="" disabled selected>Seleccione una empresa…</option>
+    	{% for empresa in empresas %}
+      	  <option value="{{ empresa }}">{{ empresa }}</option>
+    	{% endfor %}
+	</select>
+
     </label><br>
     <label>Tipo de problema:
         <select name="tipo_problema">

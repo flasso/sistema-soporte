@@ -4,120 +4,112 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 import pytz
+import os
 
 app = Flask(__name__)
 
+# Configuración del correo
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'
-app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'
+app.config['MAIL_PASSWORD'] = 'Light@940402.'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
+
 mail = Mail(app)
 
-def hora_colombia():
-    zona = pytz.timezone('America/Bogota')
-    return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
-
-DB_URL = "postgresql://…la_internal_url_que_te_dio_render…"
+# URL interna de Render para la base
+DB_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql://sistema_soporte_db_user:GQV2H65J4INWg1fYJCFmwcKwovOPQLRn@dpg-d1lhq7p5pdvs73c0acn0-a/sistema_soporte_db"
+)
 
 def get_conn():
     return psycopg2.connect(DB_URL, sslmode='require', cursor_factory=RealDictCursor)
 
-@app.route('/', methods=['GET', 'POST'])
-def soporte():
-    conn = get_conn()
-    cur = conn.cursor()
-
-    if request.method == 'POST':
-        nombre = request.form['nombre']
-        correo = request.form['correo']
-        telefono = request.form['telefono']
-        empresa = request.form['empresa']
-        descripcion = request.form['descripcion']
-        tipo_problema = request.form['tipo_problema']
-        fecha = hora_colombia()
-
-        cur.execute("""
-            INSERT INTO incidentes (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Abierto')
-        """, (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion))
+def init_db():
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS empresas (
+                    id SERIAL PRIMARY KEY,
+                    nombre VARCHAR(100) UNIQUE NOT NULL
+                );
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS incidentes (
+                    id SERIAL PRIMARY KEY,
+                    nombre VARCHAR(100) NOT NULL,
+                    correo VARCHAR(100) NOT NULL,
+                    telefono VARCHAR(50),
+                    empresa VARCHAR(100),
+                    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    tipo_problema VARCHAR(50),
+                    descripcion TEXT,
+                    estado VARCHAR(20) DEFAULT 'Abierto',
+                    respuesta TEXT,
+                    fecha_respuesta TIMESTAMP
+                );
+            """)
+            # Insertar las empresas si aún no están
+            cur.execute("SELECT COUNT(*) AS total FROM empresas;")
+            if cur.fetchone()['total'] == 0:
+                empresas = [
+                    'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
+                    'Century', 'CNM', 'Contructora de Marcas', 'DORTIZ',
+                    'Elite', 'Factorial', 'Grupo One', 'Zelva',
+                    'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges',
+                    'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV',
+                    'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
+                ]
+                for e in empresas:
+                    cur.execute("INSERT INTO empresas (nombre) VALUES (%s) ON CONFLICT DO NOTHING;", (e,))
         conn.commit()
 
-        msg = Message("Nuevo incidente de soporte", recipients=["soporte@cloudsoftware.com.co"])
-        msg.body = f"""Nuevo incidente:
-Nombre: {nombre}
-Correo: {correo}
-Teléfono: {telefono}
-Empresa: {empresa}
-Tipo: {tipo_problema}
-Descripción: {descripcion}
-Fecha: {fecha}"""
+@app.route("/", methods=["GET", "POST"])
+def soporte():
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT nombre FROM empresas ORDER BY nombre;")
+            empresas = [row['nombre'] for row in cur.fetchall()]
+
+    if request.method == "POST":
+        nombre = request.form["nombre"]
+        correo = request.form["correo"]
+        telefono = request.form["telefono"]
+        empresa = request.form["empresa"]
+        tipo_problema = request.form["tipo_problema"]
+        descripcion = request.form["descripcion"]
+        fecha = datetime.now(pytz.timezone('America/Bogota'))
+
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO incidentes (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (nombre, correo, telefono, empresa, fecha, tipo_problema, descripcion))
+            conn.commit()
+
+        msg = Message("Nuevo incidente recibido", recipients=["soporte@cloudsoftware.com.co"])
+        msg.body = f"""
+        Se ha recibido un nuevo incidente de {nombre} ({correo}):
+
+        Empresa: {empresa}
+        Teléfono: {telefono}
+        Tipo: {tipo_problema}
+        Descripción: {descripcion}
+        """
         mail.send(msg)
 
-        conn.close()
-        return redirect(url_for('gracias'))
+        return redirect(url_for("gracias"))
 
-    cur.execute("SELECT nombre FROM empresas ORDER BY nombre ASC")
-    empresas = [e['nombre'] for e in cur.fetchall()]
-    conn.close()
+    return render_template("formulario.html", empresas=empresas)
 
-    return render_template('formulario.html', empresas=empresas)
-
-@app.route('/gracias')
+@app.route("/gracias")
 def gracias():
-    return "Gracias por reportar tu incidente. Te responderemos pronto."
+    return "<h2>Gracias por reportar tu incidente. Pronto nos pondremos en contacto.</h2>"
 
-@app.route('/admin')
-def admin():
-    conn = get_conn()
-    cur = conn.cursor()
-
-    cur.execute("SELECT * FROM incidentes ORDER BY fecha DESC")
-    rows = cur.fetchall()
-    conn.close()
-
-    incidentes = []
-    pendientes = sum(1 for r in rows if r['estado'] == 'Abierto')
-    cerrados = sum(1 for r in rows if r['estado'] != 'Abierto')
-
-    for r in rows:
-        if r['estado'] != 'Abierto' and r['fecha_respuesta']:
-            inicio = datetime.strptime(r['fecha'], '%Y-%m-%d %H:%M:%S')
-            fin = datetime.strptime(r['fecha_respuesta'], '%Y-%m-%d %H:%M:%S')
-            diff = fin - inicio
-            horas = diff.total_seconds() / 3600
-            r['tiempo_resolucion'] = f"{horas:.1f} horas"
-        else:
-            r['tiempo_resolucion'] = '-'
-        incidentes.append(r)
-
-    return render_template('admin.html', incidentes=incidentes, pendientes=pendientes, cerrados=cerrados)
-
-@app.route('/responder/<int:id>', methods=['POST'])
-def responder(id):
-    respuesta = request.form['respuesta']
-    fecha_respuesta = hora_colombia()
-
-    conn = get_conn()
-    cur = conn.cursor()
-
-    cur.execute("UPDATE incidentes SET respuesta=%s, estado='Cerrado', fecha_respuesta=%s WHERE id=%s",
-                (respuesta, fecha_respuesta, id))
-    conn.commit()
-
-    cur.execute("SELECT correo FROM incidentes WHERE id=%s", (id,))
-    correo_cliente = cur.fetchone()['correo']
-    conn.close()
-
-    msg = Message("Respuesta a tu incidente", recipients=[correo_cliente])
-    msg.body = f"""Hola, esta es la respuesta a tu incidente:
-{respuesta}
-Gracias por contactarnos."""
-    mail.send(msg)
-
-    return redirect(url_for('admin'))
-
-if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+if __name__ == "__main__":
+    init_db()
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
