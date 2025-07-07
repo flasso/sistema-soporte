@@ -77,7 +77,10 @@ def soporte():
         nombre = request.form["nombre"]
         correo = request.form["correo"]
         telefono = request.form["telefono"]
-        empresa = request.form["empresa"]
+        empresa = request.form.get("empresa")
+if not empresa:
+    return "Debes seleccionar una empresa.", 400
+
         tipo_problema = request.form["tipo_problema"]
         descripcion = request.form["descripcion"]
         fecha = datetime.now(pytz.timezone('America/Bogota'))
