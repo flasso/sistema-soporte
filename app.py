@@ -20,8 +20,7 @@ def hora_colombia():
     zona = pytz.timezone('America/Bogota')
     return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
 
-# Usa la connection string del pooler desde variable de entorno
-DB_URL = os.environ.get('DATABASE_URL', '')
+DB_URL = os.environ.get('DATABASE_URL')
 
 def get_conn():
     return psycopg2.connect(DB_URL, sslmode='require', cursor_factory=RealDictCursor)
@@ -109,7 +108,7 @@ def responder(id):
     conn.commit()
 
     cur.execute("SELECT correo FROM incidentes WHERE id=%s", (id,))
-    correo_cliente = cur.fetchone()[0]
+    correo_cliente = cur.fetchone()['correo']
     conn.close()
 
     msg = Message("Respuesta a tu incidente", recipients=[correo_cliente])

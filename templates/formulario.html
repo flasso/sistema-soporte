@@ -2,74 +2,36 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Reporte de Incidente - Soporte Cloud</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
-<meta name="theme-color" content="#007bff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Soporte Cloud">
-<link rel="apple-touch-icon" href="{{ url_for('static', filename='logo-192.png') }}">
-<style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f7f7f7; }
-    .container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,.1); }
-    .logo { text-align: center; margin-bottom: 20px; }
-    .logo img { max-width: 150px; }
-    h2 { text-align: center; color: #007bff; }
-    label { display: block; margin-top: 15px; }
-    input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; }
-    button { margin-top: 20px; padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #0056b3; }
-</style>
+<title>Formulario de Soporte</title>
 </head>
 <body>
-
-<div class="container">
-    <div class="logo">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Cloud Software SAS">
-    </div>
-    <h2>Reporte de Incidente</h2>
-
-    <form method="POST">
-        <label for="nombre">Nombre</label>
-        <input type="text" name="nombre" required>
-
-        <label for="correo">Correo</label>
-        <input type="email" name="correo" required>
-
-        <label for="telefono">Teléfono</label>
-        <input type="text" name="telefono" required>
-
-        <label for="empresa">Empresa</label>
-        <select name="empresa" required>
-            {% for empresa in empresas %}
-                <option value="{{ empresa }}">{{ empresa }}</option>
-            {% endfor %}
-        </select>
-
-        <label for="tipo_problema">Tipo de Problema</label>
-        <select name="tipo_problema" required>
-            <option value="Bug">Bug</option>
-            <option value="Mejora">Mejora</option>
-            <option value="Funcionalidad">Funcionalidad</option>
-            <option value="Nueva opción">Nueva opción</option>
-        </select>
-
-        <label for="descripcion">Descripción</label>
-        <textarea name="descripcion" rows="5" required></textarea>
-
-        <button type="submit">Enviar</button>
-    </form>
+<div style="text-align:center;">
+    <img src="/static/logo.png" alt="Logo Cloud Software" width="200">
 </div>
 
-<script>
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('{{ url_for('static', filename='sw.js') }}')
-        .then(reg => console.log("✅ Service Worker registrado", reg))
-        .catch(err => console.error("❌ Error al registrar SW", err));
-}
-</script>
-
+<h2>Reporte de Incidente</h2>
+<form method="POST">
+    <label>Nombre: <input type="text" name="nombre" required></label><br>
+    <label>Correo: <input type="email" name="correo" required></label><br>
+    <label>Teléfono: <input type="text" name="telefono" required></label><br>
+    <label>Empresa:
+        <select name="empresa">
+            {% for empresa in empresas %}
+            <option value="{{ empresa }}">{{ empresa }}</option>
+            {% endfor %}
+        </select>
+    </label><br>
+    <label>Tipo de problema:
+        <select name="tipo_problema">
+            <option value="bug">Bug</option>
+            <option value="mejora">Mejora</option>
+            <option value="funcionalidad">Funcionalidad</option>
+            <option value="nueva opcion">Nueva Opción</option>
+        </select>
+    </label><br>
+    <label>Descripción:<br><textarea name="descripcion" rows="5" cols="40"></textarea></label><br>
+    <button type="submit">Enviar</button>
+</form>
 </body>
 </html>
 
