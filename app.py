@@ -19,7 +19,7 @@ def hora_colombia():
     zona = pytz.timezone('America/Bogota')
     return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
 
-DB_URL = "postgresql://sistema_soporte_db_user:GQV2H65J4INWg1fYJCFmwcKwovOPQLRn@dpg-d1lhq7p5pdvs73c0acn0-a/sistema_soporte_db"
+DB_URL = "postgresql://…la_internal_url_que_te_dio_render…"
 
 def get_conn():
     return psycopg2.connect(DB_URL, sslmode='require', cursor_factory=RealDictCursor)
