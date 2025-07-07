@@ -2,11 +2,10 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Sistema de Gestión de Incidentes</title>
+<title>Gracias</title>
 <style>
 body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-.container { max-width: 600px; margin: auto; }
-h1 { color: #333; }
+h1 { color: #28a745; }
 p { font-size: 18px; color: #555; }
 a.button {
     display: inline-block;
@@ -22,10 +21,8 @@ a.button:hover { background-color: #0056b3; }
 </style>
 </head>
 <body>
-<div class="container">
-    <h1>Sistema de Gestión de Incidentes</h1>
-    <p>Bienvenido. Este sistema te permite registrar problemas, sugerencias y solicitudes sobre el software.</p>
-    <a href="{{ url_for('soporte') }}" class="button">Ir al formulario de reporte de incidentes</a>
-</div>
+    <h1>¡Gracias por tu reporte!</h1>
+    <p>Hemos recibido tu incidente y lo atenderemos lo antes posible.</p>
+    <a href="{{ url_for('index') }}" class="button">Volver al inicio</a>
 </body>
 </html>
