@@ -4,7 +4,6 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 import pytz
-import os
 
 app = Flask(__name__)
 
@@ -20,7 +19,7 @@ def hora_colombia():
     zona = pytz.timezone('America/Bogota')
     return datetime.now(zona).strftime('%Y-%m-%d %H:%M:%S')
 
-DB_URL = os.environ.get('DATABASE_URL')  # esta la obtiene del entorno
+DB_URL = "postgresql://sistema_soporte_db_user:GQV2H65J4INWg1fYJCFmwcKwovOPQLRn@dpg-d1lhq7p5pdvs73c0acn0-a/sistema_soporte_db"
 
 def get_conn():
     return psycopg2.connect(DB_URL, sslmode='require', cursor_factory=RealDictCursor)
