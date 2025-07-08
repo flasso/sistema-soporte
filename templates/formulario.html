@@ -1,40 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Reporte de Incidente</title>
+<meta charset="UTF-8">
+<title>Formulario de Incidente</title>
 </head>
 <body>
-    <h2>Formulario de Incidente</h2>
-    <form method="POST" action="{{ url_for('enviar') }}">
-        <label>Nombre:</label>
-        <input type="text" name="nombre" required><br>
-
-        <label>Correo:</label>
-        <input type="email" name="correo" required><br>
-
-        <label>Teléfono:</label>
-        <input type="text" name="telefono" required><br>
-
-        <label>Empresa:</label>
-        <select name="empresa" required>
-            {% for empresa in empresas %}
-                <option value="{{ empresa }}">{{ empresa }}</option>
-            {% endfor %}
-        </select><br>
-
-        <label>Tipo de problema:</label>
-        <select name="tipo_problema" required>
-            <option value="bug">Bug</option>
-            <option value="mejora">Mejora</option>
-            <option value="funcionalidad">Funcionalidad</option>
-            <option value="nueva opcion">Nueva opción</option>
-        </select><br>
-
-        <label>Descripción:</label><br>
-        <textarea name="descripcion" rows="4" cols="50" required></textarea><br>
-
-        <button type="submit">Enviar</button>
-    </form>
+<h2>Reporte de Incidente</h2>
+<form method="POST">
+    <label>Nombre</label>
+    <input name="nombre" required>
+    <label>Correo</label>
+    <input name="correo" type="email" required>
+    <label>Teléfono</label>
+    <input name="telefono" required>
+    <label>Empresa</label>
+    <select name="empresa" required>
+        {% for empresa in empresas %}
+        <option value="{{ empresa }}">{{ empresa }}</option>
+        {% endfor %}
+    </select>
+    <label>Tipo de problema</label>
+    <input name="tipo_problema" required>
+    <label>Descripción</label>
+    <textarea name="descripcion" required></textarea>
+    <button type="submit">Enviar</button>
+</form>
 </body>
 </html>

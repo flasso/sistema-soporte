@@ -1,89 +1,92 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect
 from flask_mail import Mail, Message
+import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
-import psycopg2
-import os
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'
 
-# Configuración de correo
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'
-app.config['MAIL_PASSWORD'] = 'TU_PASSWORD_GMAIL'
-mail = Mail(app)
-
-# Variable de entorno para la DB
-DB_URL = os.environ.get("DATABASE_URL")
+# PostgreSQL
+DB_URL = "postgresql://sistema_soporte_db_user:GQV2H65J4INWg1fYJCFmwcKwovOPQLRn@dpg-d1lhq7p5pdvs73c0acn0-a/sistema_soporte_db"
 
 def get_conn():
     return psycopg2.connect(DB_URL, sslmode='require', cursor_factory=RealDictCursor)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
+# Configuración correo
+app.config['MAIL_SERVER'] = 'smtp.tucorreo.com'  # cámbialo a tu SMTP
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'  # tu cuenta
+app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'            # tu contraseña
+app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 
-@app.route('/formulario')
-def formulario():
+mail = Mail(app)
+
+@app.route('/', methods=['GET', 'POST'])
+def soporte():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        telefono = request.form['telefono']
+        empresa = request.form['empresa']
+        tipo_problema = request.form['tipo_problema']
+        descripcion = request.form['descripcion']
+        fecha_reporte = datetime.now().isoformat()
+        estado = 'pendiente'
+
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO incidentes (nombre, correo, telefono, empresa, tipo_problema, descripcion, fecha_reporte, estado)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+        """, (nombre, correo, telefono, empresa, tipo_problema, descripcion, fecha_reporte, estado))
+        conn.commit()
+        cur.close()
+        conn.close()
+        return redirect('/gracias')
+    
     empresas = [
-        'Seleccione una empresa',
-        'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam',
-        'Century', 'CNM', 'Contructora de Marcas', 'DORTIZ',
-        'Elite', 'Factorial', 'Grupo One', 'Zelva', 'Integracion',
-        'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges',
-        'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens',
-        'OMV', 'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
+        '', 'Acomedios', 'Aldas', 'Adela', 'Asoredes', 'Big Media', 'Cafam', 'Century', 'CNM', 
+        'Contructora de Marcas', 'DORTIZ', 'Elite', 'Factorial', 'Grupo One', 'Zelva', 
+        'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges', 
+        'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV', 
+        'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
     ]
     return render_template('formulario.html', empresas=empresas)
 
-@app.route('/enviar', methods=['POST'])
-def enviar():
-    nombre = request.form['nombre']
-    correo = request.form['correo']
-    telefono = request.form['telefono']
-    empresa = request.form['empresa']
-    tipo = request.form['tipo_problema']
-    descripcion = request.form['descripcion']
-    fecha_reporte = datetime.now().isoformat()
-
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                INSERT INTO incidentes
-                (nombre, correo, telefono, empresa, tipo_problema, descripcion, fecha_reporte, estado)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, 'pendiente')
-            """, (nombre, correo, telefono, empresa, tipo, descripcion, fecha_reporte))
-            conn.commit()
-
-    # Enviar correo al cliente
-    msg = Message(f"Incidente recibido: {tipo}",
-                  sender=app.config['MAIL_USERNAME'],
-                  recipients=[correo])
-    msg.body = f"""
-Hola {nombre},
-
-Hemos recibido tu incidente con la siguiente descripción:
-"{descripcion}"
-
-Pronto te contactaremos con una respuesta.
-
-Gracias,
-Equipo de Soporte
-"""
-    mail.send(msg)
-
+@app.route('/gracias')
+def gracias():
     return render_template('gracias.html')
 
-@app.route('/admin')
+@app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute("SELECT * FROM incidentes ORDER BY fecha_reporte DESC")
-            incidentes = cur.fetchall()
+    conn = get_conn()
+    cur = conn.cursor()
+    if request.method == 'POST':
+        incidente_id = request.form['incidente_id']
+        respuesta = request.form['respuesta']
+        fecha_respuesta = datetime.now().isoformat()
+        # actualiza y obtiene correo del cliente
+        cur.execute("""
+            UPDATE incidentes 
+            SET respuesta=%s, fecha_respuesta=%s, estado='cerrado'
+            WHERE id=%s
+            RETURNING correo, nombre;
+        """, (respuesta, fecha_respuesta, incidente_id))
+        result = cur.fetchone()
+        conn.commit()
+
+        # enviar correo
+        if result:
+            msg = Message("Respuesta a tu incidente", recipients=[result['correo']])
+            msg.body = f"Hola {result['nombre']},\n\nHemos respondido a tu incidente:\n\n{respuesta}\n\nGracias."
+            mail.send(msg)
+
+    cur.execute("SELECT * FROM incidentes ORDER BY fecha_reporte DESC;")
+    incidentes = cur.fetchall()
+    cur.close()
+    conn.close()
     return render_template('admin.html', incidentes=incidentes)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(host='0.0.0.0', port=10000)
