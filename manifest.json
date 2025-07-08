@@ -1,0 +1,21 @@
+{
+  "name": "Soporte Cloud",
+  "short_name": "Soporte",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007bff",
+  "description": "Sistema de soporte para clientes de Cloud Software SAS",
+  "icons": [
+    {
+      "src": "/static/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
