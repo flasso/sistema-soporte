@@ -2,63 +2,26 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Administración de Incidentes</title>
+    <title>Responder Incidente</title>
     <style>
-        table { border-collapse: collapse; width: 100%; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .pendiente { color: red; }
-        .cerrado { color: green; }
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        form { max-width: 600px; margin: auto; }
+        label { display: block; margin-top: 15px; }
+        input, textarea, button { width: 100%; padding: 10px; margin-top: 5px; }
     </style>
 </head>
 <body>
-    <h1>Incidentes Reportados</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Fecha</th>
-                <th>Nombre</th>
-                <th>Empresa</th>
-                <th>Estado</th>
-                <th>Archivo recibido</th>
-                <th>Respuesta enviada</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for incidente in incidentes %}
-            <tr>
-                <td>{{ incidente.id }}</td>
-                <td>{{ incidente.fecha_reporte }}</td>
-                <td>{{ incidente.nombre }}</td>
-                <td>{{ incidente.empresa }}</td>
-                <td class="{{ incidente.estado }}">{{ incidente.estado }}</td>
-                <td>
-                    {% if incidente.archivo %}
-                        <a href="{{ incidente.archivo }}" target="_blank">Ver archivo</a>
-                    {% else %}
-                        Sin archivo
-                    {% endif %}
-                </td>
-                <td>
-                    {% if incidente.archivo_respuesta %}
-                        <a href="{{ incidente.archivo_respuesta }}" target="_blank">Ver respuesta</a>
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>
-                    {% if incidente.estado == 'pendiente' %}
-                        <a href="/responder/{{ incidente.id }}">Responder</a>
-                    {% else %}
-                        Cerrado
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h2>Responder Incidente #{{ incidente.id }}</h2>
+    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('responder', incidente_id=incidente.id) }}">
+        <label for="respuesta">Respuesta</label>
+        <textarea name="respuesta" rows="5" required></textarea>
+
+        <label for="archivo_respuesta">Adjuntar archivo (opcional)</label>
+        <input type="file" name="archivo_respuesta">
+
+        <button type="submit">Enviar Respuesta</button>
+    </form>
 </body>
 </html>
-
