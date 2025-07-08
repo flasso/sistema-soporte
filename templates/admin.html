@@ -3,28 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <title>Panel de Administración</title>
+<style>
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
+</style>
 </head>
 <body>
-<h2>Incidentes Reportados</h2>
-{% for i in incidentes %}
-<div>
-    <p><strong>{{ i.nombre }}</strong> - {{ i.empresa }}</p>
-    <p>{{ i.descripcion }}</p>
-    <p>Estado: {{ i.estado }}</p>
-    {% if i.estado == 'pendiente' %}
-    <form method="post">
-        <input type="hidden" name="incidente_id" value="{{ i.id }}">
-        <textarea name="respuesta" required></textarea>
-        <button type="submit">Responder y Cerrar</button>
-    </form>
-    {% else %}
-    <p>Respuesta: {{ i.respuesta }}</p>
-    <p>Respondido el: {{ i.fecha_respuesta }}</p>
-    {% endif %}
-</div>
-<hr>
-{% endfor %}
+<h2>Incidentes reportados</h2>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Empresa</th>
+        <th>Tipo</th>
+        <th>Descripción</th>
+        <th>Fecha</th>
+        <th>Estado</th>
+    </tr>
+    {% for inc in incidentes %}
+    <tr>
+        <td>{{ inc.id }}</td>
+        <td>{{ inc.nombre }}</td>
+        <td>{{ inc.correo }}</td>
+        <td>{{ inc.telefono }}</td>
+        <td>{{ inc.empresa }}</td>
+        <td>{{ inc.tipo_problema }}</td>
+        <td>{{ inc.descripcion }}</td>
+        <td>{{ inc.fecha_reporte }}</td>
+        <td>{{ inc.estado }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<a href="/">Volver al formulario</a>
 </body>
 </html>
+
 
 
