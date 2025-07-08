@@ -2,40 +2,39 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Formulario de Soporte</title>
+    <title>Reporte de Incidente</title>
 </head>
 <body>
-    <h2>Reporte de Incidente</h2>
-    <form method="POST">
-        <label>Nombre</label>
-        <input type="text" name="nombre" required>
+    <h2>Formulario de Incidente</h2>
+    <form method="POST" action="{{ url_for('enviar') }}">
+        <label>Nombre:</label>
+        <input type="text" name="nombre" required><br>
 
-        <label>Correo</label>
-        <input type="email" name="correo" required>
+        <label>Correo:</label>
+        <input type="email" name="correo" required><br>
 
-        <label>Teléfono</label>
-        <input type="text" name="telefono" required>
+        <label>Teléfono:</label>
+        <input type="text" name="telefono" required><br>
 
-        <label>Empresa</label>
+        <label>Empresa:</label>
         <select name="empresa" required>
             {% for empresa in empresas %}
                 <option value="{{ empresa }}">{{ empresa }}</option>
             {% endfor %}
-        </select>
+        </select><br>
 
-        <label>Tipo de problema</label>
+        <label>Tipo de problema:</label>
         <select name="tipo_problema" required>
             <option value="bug">Bug</option>
             <option value="mejora">Mejora</option>
             <option value="funcionalidad">Funcionalidad</option>
             <option value="nueva opcion">Nueva opción</option>
-        </select>
+        </select><br>
 
-        <label>Descripción</label>
-        <textarea name="descripcion" rows="4" required></textarea>
+        <label>Descripción:</label><br>
+        <textarea name="descripcion" rows="4" cols="50" required></textarea><br>
 
         <button type="submit">Enviar</button>
     </form>
 </body>
 </html>
-

@@ -1,57 +1,38 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Panel de Administración</title>
-<style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th { background-color: #f2f2f2; }
-    .pendiente { color: red; font-weight: bold; }
-    .cerrado { color: green; font-weight: bold; }
-    .btn-cerrar { padding: 5px 10px; background: #007BFF; color: white; text-decoration: none; border-radius: 4px; }
-    .volver { margin-top: 20px; display: inline-block; padding: 10px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Admin - Incidentes</title>
 </head>
 <body>
-<h1>Panel de Administración - Incidentes</h1>
-
-<table>
-<thead>
-<tr>
-    <th>ID</th>
-    <th>Nombre</th>
-    <th>Correo</th>
-    <th>Teléfono</th>
-    <th>Empresa</th>
-    <th>Tipo</th>
-    <th>Descripción</th>
-    <th>Fecha</th>
-    <th>Estado</th>
-</tr>
-</thead>
-<tbody>
-{% for inc in incidentes %}
-<tr>
-    <td>{{ inc.id }}</td>
-    <td>{{ inc.nombre }}</td>
-    <td>{{ inc.correo }}</td>
-    <td>{{ inc.telefono }}</td>
-    <td>{{ inc.empresa }}</td>
-    <td>{{ inc.tipo_problema }}</td>
-    <td>{{ inc.descripcion }}</td>
-    <td>{{ inc.fecha_reporte }}</td>
-    <td class="{{ 'pendiente' if inc.estado == 'pendiente' else 'cerrado' }}">
-        {{ inc.estado }}
-    </td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-
-<a href="{{ url_for('index') }}" class="volver">Volver al inicio</a>
-
+    <h2>Incidentes registrados</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Teléfono</th>
+            <th>Empresa</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+        </tr>
+        {% for inc in incidentes %}
+        <tr>
+            <td>{{ inc.id }}</td>
+            <td>{{ inc.nombre }}</td>
+            <td>{{ inc.correo }}</td>
+            <td>{{ inc.telefono }}</td>
+            <td>{{ inc.empresa }}</td>
+            <td>{{ inc.tipo_problema }}</td>
+            <td>{{ inc.descripcion }}</td>
+            <td>{{ inc.fecha_reporte }}</td>
+            <td>{{ inc.estado }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{{ url_for('index') }}">Volver al inicio</a>
 </body>
 </html>
 
