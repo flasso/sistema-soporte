@@ -1,46 +1,58 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Panel de Administración</title>
-<style>
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
-</style>
+    <meta charset="UTF-8">
+    <title>Panel de Administración</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo img { max-width: 200px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .pendiente { background-color: #ffcccc; }
+        .cerrado { background-color: #ccffcc; }
+        .button {
+            padding: 5px 10px; text-decoration: none; border-radius: 4px;
+            background-color: #2196F3; color: white;
+        }
+    </style>
 </head>
 <body>
-<h2>Incidentes reportados</h2>
-
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Teléfono</th>
-        <th>Empresa</th>
-        <th>Tipo</th>
-        <th>Descripción</th>
-        <th>Fecha</th>
-        <th>Estado</th>
-    </tr>
-    {% for inc in incidentes %}
-    <tr>
-        <td>{{ inc.id }}</td>
-        <td>{{ inc.nombre }}</td>
-        <td>{{ inc.correo }}</td>
-        <td>{{ inc.telefono }}</td>
-        <td>{{ inc.empresa }}</td>
-        <td>{{ inc.tipo_problema }}</td>
-        <td>{{ inc.descripcion }}</td>
-        <td>{{ inc.fecha_reporte }}</td>
-        <td>{{ inc.estado }}</td>
-    </tr>
-    {% endfor %}
-</table>
-
-<a href="/">Volver al formulario</a>
+    <div class="logo">
+        <img src="/static/logo.png" alt="Cloud Software SAS">
+    </div>
+    <h2>Incidentes Reportados</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Nombre</th>
+            <th>Empresa</th>
+            <th>Tipo</th>
+            <th>Descripción</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+        {% for incidente in incidentes %}
+        <tr class="{{ 'pendiente' if incidente.estado == 'pendiente' else 'cerrado' }}">
+            <td>{{ incidente.id }}</td>
+            <td>{{ incidente.fecha_reporte }}</td>
+            <td>{{ incidente.nombre }}</td>
+            <td>{{ incidente.empresa }}</td>
+            <td>{{ incidente.tipo_problema }}</td>
+            <td>{{ incidente.descripcion }}</td>
+            <td>{{ incidente.estado }}</td>
+            <td>
+                {% if incidente.estado == 'pendiente' %}
+                <a href="/responder/{{ incidente.id }}" class="button">Responder</a>
+                <a href="/cerrar/{{ incidente.id }}" class="button">Cerrar</a>
+                {% else %}
+                Cerrado
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
-
-
-

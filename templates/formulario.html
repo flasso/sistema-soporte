@@ -1,59 +1,59 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Reporte de Incidente</title>
-<style>
-    body { font-family: Arial, sans-serif; margin: 30px; }
-    form { max-width: 600px; margin: auto; }
-    label { display: block; margin-top: 15px; }
-    input, select, textarea { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; }
-    button { margin-top: 20px; padding: 10px 20px; }
-    .logo { text-align: center; margin-bottom: 20px; }
-    .logo img { max-width: 200px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Formulario de Soporte</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        form { max-width: 600px; margin: auto; display: flex; flex-direction: column; }
+        label { margin-top: 10px; }
+        input, select, textarea { padding: 8px; margin-top: 4px; }
+        button { margin-top: 20px; padding: 10px; }
+        .logo { text-align: center; margin-bottom: 20px; }
+        .logo img { max-width: 200px; }
+    </style>
 </head>
 <body>
+    <div class="logo">
+        <img src="/static/logo.png" alt="Cloud Software SAS">
+    </div>
+    <h2>Reporte de Incidente</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label for="nombre">Nombre</label>
+        <input type="text" name="nombre" required>
 
-<div class="logo">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Cloud Software SAS">
-</div>
+        <label for="correo">Correo</label>
+        <input type="email" name="correo" required>
 
-<h2>Reporte de Incidente</h2>
+        <label for="telefono">Teléfono</label>
+        <input type="text" name="telefono" required>
 
-<form method="POST">
-    <label for="nombre">Nombre</label>
-    <input type="text" name="nombre" required>
-
-    <label for="correo">Correo</label>
-    <input type="email" name="correo" required>
-
-    <label for="telefono">Teléfono</label>
-    <input type="text" name="telefono" required>
-
-    <label for="empresa">Empresa</label>
-    <select name="empresa" required>
-        <option value="">Seleccione su empresa</option>
-        {% for empresa in empresas %}
+        <label for="empresa">Empresa</label>
+        <select name="empresa" required>
+            <option value="">Seleccione una empresa</option>
+            {% for empresa in empresas %}
             <option value="{{ empresa }}">{{ empresa }}</option>
-        {% endfor %}
-    </select>
+            {% endfor %}
+        </select>
 
-    <label for="tipo_problema">Tipo de problema</label>
-    <select name="tipo_problema" required>
-        <option value="">Seleccione una opción</option>
-        <option value="bug">Caso</option>
-        <option value="mejora">Mejora</option>
-        <option value="funcionalidad">Funcionalidad</option>
-        <option value="nueva_opcion">Nueva opción</option>
-    </select>
+        <label for="tipo_problema">Tipo de Problema</label>
+        <select name="tipo_problema" required>
+            <option value="bug">Bug</option>
+            <option value="mejora">Mejora</option>
+            <option value="funcionalidad">Funcionalidad</option>
+            <option value="nueva opcion">Nueva opción</option>
+        </select>
 
-    <label for="descripcion">Descripción del incidente</label>
-    <textarea name="descripcion" rows="5" required></textarea>
+        <label for="descripcion">Descripción</label>
+        <textarea name="descripcion" rows="4" required></textarea>
 
-    <button type="submit">Enviar incidente</button>
-</form>
+        <label for="archivo">Adjuntar archivo (opcional)</label>
+        <input type="file" name="archivo">
 
+        <button type="submit">Enviar</button>
+    </form>
 </body>
 </html>
+
+
 
