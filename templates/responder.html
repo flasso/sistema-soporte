@@ -1,27 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Responder Incidente</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        form { max-width: 600px; margin: auto; }
-        label { display: block; margin-top: 15px; }
-        input, textarea, button { width: 100%; padding: 10px; margin-top: 5px; }
-    </style>
+<meta charset="UTF-8">
+<title>Responder Incidente</title>
 </head>
 <body>
-    <h2>Responder Incidente #{{ incidente.id }}</h2>
-    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
+<h1>Responder Incidente #{{ incidente_id }}</h1>
 
-    <form method="POST" enctype="multipart/form-data" action="{{ url_for('responder', incidente_id=incidente.id) }}">
-        <label for="respuesta">Respuesta</label>
-        <textarea name="respuesta" rows="5" required></textarea>
+<form method="POST" enctype="multipart/form-data">
+    <label>Respuesta:</label><br>
+    <textarea name="respuesta" required></textarea><br><br>
 
-        <label for="archivo_respuesta">Adjuntar archivo (opcional)</label>
-        <input type="file" name="archivo_respuesta">
+    <label>Archivo adjunto (opcional):</label>
+    <input type="file" name="archivo_respuesta"><br><br>
 
-        <button type="submit">Enviar Respuesta</button>
-    </form>
+    <button type="submit">Enviar Respuesta</button>
+</form>
+
+<a href="/admin">Volver a admin</a>
 </body>
 </html>
+

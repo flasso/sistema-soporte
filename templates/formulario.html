@@ -1,59 +1,47 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Formulario de Soporte</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 30px; }
-        form { max-width: 600px; margin: auto; display: flex; flex-direction: column; }
-        label { margin-top: 10px; }
-        input, select, textarea { padding: 8px; margin-top: 4px; }
-        button { margin-top: 20px; padding: 10px; }
-        .logo { text-align: center; margin-bottom: 20px; }
-        .logo img { max-width: 200px; }
-    </style>
+<meta charset="UTF-8">
+<title>Reporte de Incidente</title>
+<link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <div class="logo">
-        <img src="/static/logo.png" alt="Cloud Software SAS">
-    </div>
-    <h2>Reporte de Incidente</h2>
-    <form method="POST" enctype="multipart/form-data">
-        <label for="nombre">Nombre</label>
-        <input type="text" name="nombre" required>
+<h1>Reporte de Incidente</h1>
+<form method="POST" enctype="multipart/form-data">
+    <label>Nombre:</label>
+    <input type="text" name="nombre" required><br>
 
-        <label for="correo">Correo</label>
-        <input type="email" name="correo" required>
+    <label>Correo:</label>
+    <input type="email" name="correo" required><br>
 
-        <label for="telefono">Teléfono</label>
-        <input type="text" name="telefono" required>
+    <label>Teléfono:</label>
+    <input type="text" name="telefono"><br>
 
-        <label for="empresa">Empresa</label>
-        <select name="empresa" required>
-            <option value="">Seleccione una empresa</option>
-            {% for empresa in empresas %}
-            <option value="{{ empresa }}">{{ empresa }}</option>
-            {% endfor %}
-        </select>
+    <label>Empresa:</label>
+    <select name="empresa" required>
+        {% for empresa in empresas %}
+        <option value="{{ empresa }}">{{ empresa }}</option>
+        {% endfor %}
+    </select><br>
 
-        <label for="tipo_problema">Tipo de Problema</label>
-        <select name="tipo_problema" required>
-            <option value="bug">Caso</option>
-            <option value="mejora">Mejora</option>
-            <option value="funcionalidad">Funcionalidad</option>
-            <option value="nueva opcion">Nueva opción</option>
-        </select>
+    <label>Tipo de Problema:</label>
+    <select name="tipo_problema" required>
+        <option value="bug">Bug</option>
+        <option value="sugerencia">Sugerencia</option>
+        <option value="soporte">Soporte</option>
+    </select><br>
 
-        <label for="descripcion">Descripción</label>
-        <textarea name="descripcion" rows="4" required></textarea>
+    <label>Descripción:</label><br>
+    <textarea name="descripcion" required></textarea><br>
 
-        <label for="archivo">Adjuntar archivo (opcional)</label>
-        <input type="file" name="archivo">
+    <label>Archivo adjunto (opcional):</label>
+    <input type="file" name="archivo"><br>
 
-        <button type="submit">Enviar</button>
-    </form>
+    <button type="submit">Enviar</button>
+</form>
 </body>
 </html>
+
 
 
 
