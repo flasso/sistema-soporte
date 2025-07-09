@@ -1,99 +1,67 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
-    background-color: #f9f9f9;
+    background: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 6px;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    max-width: 150px;
 }
 
 h1 {
-    color: #333;
     text-align: center;
-}
-
-form {
-    max-width: 600px;
-    margin: 0 auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 form label {
     display: block;
     margin-top: 10px;
-    font-weight: bold;
 }
 
-form input[type="text"],
-form input[type="email"],
-form input[type="file"],
-form select,
-form textarea {
+form input, form select, form textarea, form button {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-form textarea {
-    resize: vertical;
-    height: 100px;
 }
 
 form button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #007BFF;
+    background: #007bff;
     color: white;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
+    margin-top: 15px;
 }
 
 form button:hover {
-    background-color: #0056b3;
+    background: #0056b3;
 }
 
 table {
-    width: 90%;
-    margin: 20px auto;
+    width: 100%;
     border-collapse: collapse;
+    margin-top: 20px;
 }
 
-table th,
-table td {
+table th, table td {
     border: 1px solid #ddd;
     padding: 8px;
-    text-align: left;
-}
-
-table th {
-    background-color: #007BFF;
-    color: white;
+    text-align: center;
 }
 
 .pendiente {
-    color: red;
-    font-weight: bold;
+    background-color: #ffe0e0;
 }
 
 .cerrado {
-    color: green;
-    font-weight: bold;
-}
-
-a {
-    color: #007BFF;
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-img {
-    display: block;
-    margin: 0 auto 20px auto;
+    background-color: #e0ffe0;
 }

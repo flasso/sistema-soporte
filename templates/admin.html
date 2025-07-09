@@ -2,42 +2,32 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Panel de Administración</title>
+<title>Admin - Incidentes</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<style>
-table { border-collapse: collapse; width: 100%; }
-th, td { border: 1px solid #ddd; padding: 8px; }
-th { background-color: #f2f2f2; }
-.pendiente { color: red; }
-.cerrado { color: green; }
-</style>
 </head>
 <body>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-height: 100px;">
+<div class="container">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
     <h1>Panel de Administración</h1>
     <table>
-        <thead>
-            <tr>
-                <th>ID</th><th>Nombre</th><th>Correo</th><th>Empresa</th><th>Estado</th><th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for i in incidentes %}
-            <tr>
-                <td>{{ i.id }}</td>
-                <td>{{ i.nombre }}</td>
-                <td>{{ i.correo }}</td>
-                <td>{{ i.empresa }}</td>
-                <td class="{{ i.estado }}">{{ i.estado }}</td>
-                <td>
-                    <a href="{{ url_for('responder', id=i.id) }}">Responder</a>
-                    {% if i.archivo %}
-                        | <a href="/uploads/{{ i.archivo }}">Ver Archivo</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
+        <tr>
+            <th>ID</th><th>Nombre</th><th>Empresa</th><th>Estado</th><th>Acciones</th>
+        </tr>
+        {% for incidente in incidentes %}
+        <tr class="{{ 'cerrado' if incidente.estado == 'cerrado' else 'pendiente' }}">
+            <td>{{ incidente.id }}</td>
+            <td>{{ incidente.nombre }}</td>
+            <td>{{ incidente.empresa }}</td>
+            <td>{{ incidente.estado }}</td>
+            <td>
+                <a href="/responder/{{ incidente.id }}">Responder</a>
+                {% if incidente.archivo %}
+                | <a href="{{ url_for('uploads', filename=incidente.archivo) }}" target="_blank">Ver adjunto</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
     </table>
+</div>
 </body>
 </html>

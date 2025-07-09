@@ -2,21 +2,32 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Responder Incidente</title>
+<title>Admin - Incidentes</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Responder al Incidente #{{ incidente.id }}</h1>
-    <p><strong>De:</strong> {{ incidente.nombre }} ({{ incidente.correo }})</p>
-    <p><strong>Empresa:</strong> {{ incidente.empresa }}</p>
-    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
-    {% if incidente.archivo %}
-        <p><strong>Archivo:</strong> <a href="/uploads/{{ incidente.archivo }}">{{ incidente.archivo }}</a></p>
-    {% endif %}
-    <form action="{{ url_for('responder', id=incidente.id) }}" method="post" enctype="multipart/form-data">
-        <label>Respuesta:</label><br>
-        <textarea name="respuesta" required></textarea><br>
-        <label>Archivo adjunto (opcional):</label><input type="file" name="archivo"><br>
-        <button type="submit">Enviar Respuesta</button>
-    </form>
+<div class="container">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+    <h1>Panel de Administración</h1>
+    <table>
+        <tr>
+            <th>ID</th><th>Nombre</th><th>Empresa</th><th>Estado</th><th>Acciones</th>
+        </tr>
+        {% for incidente in incidentes %}
+        <tr class="{{ 'cerrado' if incidente.estado == 'cerrado' else 'pendiente' }}">
+            <td>{{ incidente.id }}</td>
+            <td>{{ incidente.nombre }}</td>
+            <td>{{ incidente.empresa }}</td>
+            <td>{{ incidente.estado }}</td>
+            <td>
+                <a href="/responder/{{ incidente.id }}">Responder</a>
+                {% if incidente.archivo %}
+                | <a href="{{ url_for('uploads', filename=incidente.archivo) }}" target="_blank">Ver adjunto</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 </body>
 </html>

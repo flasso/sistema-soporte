@@ -3,10 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <title>Gracias</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>¡Gracias!</h1>
-    <p>Tu incidente ha sido reportado correctamente.</p>
-    <a href="{{ url_for('soporte') }}">Volver al formulario</a>
+<div class="container">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+    <h1>Gracias por tu reporte</h1>
+    <p>Tu incidente ha sido registrado correctamente. Nuestro equipo se pondrá en contacto contigo pronto.</p>
+    <a href="/" class="button">Volver al inicio</a>
+</div>
 </body>
 </html>
