@@ -1,48 +1,32 @@
 <!DOCTYPE html>
 <html lang="es">
-<head> <link rel="stylesheet" href="/static/styles.css">
-
+<head>
 <meta charset="UTF-8">
 <title>Reporte de Incidente</title>
-<link rel="stylesheet" href="/static/styles.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-<h1>Reporte de Incidente</h1>
-<form method="POST" enctype="multipart/form-data">
-    <label>Nombre:</label>
-    <input type="text" name="nombre" required><br>
-
-    <label>Correo:</label>
-    <input type="email" name="correo" required><br>
-
-    <label>Teléfono:</label>
-    <input type="text" name="telefono"><br>
-
-    <label>Empresa:</label>
-    <select name="empresa" required>
-        {% for empresa in empresas %}
-        <option value="{{ empresa }}">{{ empresa }}</option>
-        {% endfor %}
-    </select><br>
-
-    <label>Tipo de Problema:</label>
-    <select name="tipo_problema" required>
-        <option value="bug">Bug</option>
-        <option value="sugerencia">Sugerencia</option>
-        <option value="soporte">Soporte</option>
-    </select><br>
-
-    <label>Descripción:</label><br>
-    <textarea name="descripcion" required></textarea><br>
-
-    <label>Archivo adjunto (opcional):</label>
-    <input type="file" name="archivo"><br>
-
-    <button type="submit">Enviar</button>
-</form>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-height: 100px;">
+    <h1>Reporte de Incidente</h1>
+    <form action="/" method="post" enctype="multipart/form-data">
+        <label>Nombre:</label><input type="text" name="nombre" required><br>
+        <label>Correo:</label><input type="email" name="correo" required><br>
+        <label>Teléfono:</label><input type="text" name="telefono" required><br>
+        <label>Empresa:</label>
+        <select name="empresa" required>
+            {% for e in empresas %}
+                <option value="{{ e }}">{{ e if e else 'Seleccione empresa' }}</option>
+            {% endfor %}
+        </select><br>
+        <label>Tipo de Problema:</label>
+        <select name="tipo_problema" required>
+            <option value="bug">Bug</option>
+            <option value="sugerencia">Sugerencia</option>
+            <option value="soporte">Soporte</option>
+        </select><br>
+        <label>Descripción:</label><textarea name="descripcion" required></textarea><br>
+        <label>Archivo (opcional):</label><input type="file" name="archivo"><br>
+        <button type="submit">Enviar</button>
+    </form>
 </body>
 </html>
-
-
-
-

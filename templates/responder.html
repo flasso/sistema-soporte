@@ -1,24 +1,22 @@
 <!DOCTYPE html>
 <html lang="es">
-<head> <link rel="stylesheet" href="/static/styles.css">
-
+<head>
 <meta charset="UTF-8">
 <title>Responder Incidente</title>
 </head>
 <body>
-<h1>Responder Incidente #{{ incidente_id }}</h1>
-
-<form method="POST" enctype="multipart/form-data">
-    <label>Respuesta:</label><br>
-    <textarea name="respuesta" required></textarea><br><br>
-
-    <label>Archivo adjunto (opcional):</label>
-    <input type="file" name="archivo_respuesta"><br><br>
-
-    <button type="submit">Enviar Respuesta</button>
-</form>
-
-<a href="/admin">Volver a admin</a>
+    <h1>Responder al Incidente #{{ incidente.id }}</h1>
+    <p><strong>De:</strong> {{ incidente.nombre }} ({{ incidente.correo }})</p>
+    <p><strong>Empresa:</strong> {{ incidente.empresa }}</p>
+    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
+    {% if incidente.archivo %}
+        <p><strong>Archivo:</strong> <a href="/uploads/{{ incidente.archivo }}">{{ incidente.archivo }}</a></p>
+    {% endif %}
+    <form action="{{ url_for('responder', id=incidente.id) }}" method="post" enctype="multipart/form-data">
+        <label>Respuesta:</label><br>
+        <textarea name="respuesta" required></textarea><br>
+        <label>Archivo adjunto (opcional):</label><input type="file" name="archivo"><br>
+        <button type="submit">Enviar Respuesta</button>
+    </form>
 </body>
 </html>
-

@@ -1,52 +1,43 @@
 <!DOCTYPE html>
 <html lang="es">
-<head> <link rel="stylesheet" href="/static/styles.css">
-
+<head>
 <meta charset="UTF-8">
-<title>Administración de Incidentes</title>
+<title>Panel de Administración</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid #ddd; padding: 8px; }
+th { background-color: #f2f2f2; }
+.pendiente { color: red; }
+.cerrado { color: green; }
+</style>
 </head>
 <body>
-<h1>Incidentes Reportados</h1>
-
-<table border="1">
-<tr>
-    <th>ID</th>
-    <th>Nombre</th>
-    <th>Correo</th>
-    <th>Empresa</th>
-    <th>Tipo</th>
-    <th>Descripción</th>
-    <th>Estado</th>
-    <th>Fecha Reporte</th>
-    <th>Archivo</th>
-    <th>Respuesta</th>
-    <th>Archivo Respuesta</th>
-    <th>Acción</th>
-</tr>
-{% for inc in incidentes %}
-<tr>
-    <td>{{ inc.id }}</td>
-    <td>{{ inc.nombre }}</td>
-    <td>{{ inc.correo }}</td>
-    <td>{{ inc.empresa }}</td>
-    <td>{{ inc.tipo_problema }}</td>
-    <td>{{ inc.descripcion }}</td>
-    <td style="color: {{ 'red' if inc.estado == 'pendiente' else 'green' }}">{{ inc.estado }}</td>
-    <td>{{ inc.fecha_reporte }}</td>
-    <td>{{ inc.archivo or '' }}</td>
-    <td>{{ inc.respuesta or '' }}</td>
-    <td>{{ inc.archivo_respuesta or '' }}</td>
-    <td>
-        {% if inc.estado == 'pendiente' %}
-        <a href="/responder/{{ inc.id }}">Responder</a>
-        {% else %}
-        -
-        {% endif %}
-    </td>
-</tr>
-{% endfor %}
-</table>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-height: 100px;">
+    <h1>Panel de Administración</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Nombre</th><th>Correo</th><th>Empresa</th><th>Estado</th><th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in incidentes %}
+            <tr>
+                <td>{{ i.id }}</td>
+                <td>{{ i.nombre }}</td>
+                <td>{{ i.correo }}</td>
+                <td>{{ i.empresa }}</td>
+                <td class="{{ i.estado }}">{{ i.estado }}</td>
+                <td>
+                    <a href="{{ url_for('responder', id=i.id) }}">Responder</a>
+                    {% if i.archivo %}
+                        | <a href="/uploads/{{ i.archivo }}">Ver Archivo</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
-
-
