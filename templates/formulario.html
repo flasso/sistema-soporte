@@ -3,30 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <title>Reporte de Incidente</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="max-height: 100px;">
-    <h1>Reporte de Incidente</h1>
+<div class="container">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+    <h1>Sistema de Gestión de Incidentes</h1>
+    <p>Bienvenido. Este sistema te permite registrar problemas, sugerencias y solicitudes sobre el software.</p>
     <form action="/" method="post" enctype="multipart/form-data">
-        <label>Nombre:</label><input type="text" name="nombre" required><br>
-        <label>Correo:</label><input type="email" name="correo" required><br>
-        <label>Teléfono:</label><input type="text" name="telefono" required><br>
+        <label>Nombre:</label><input type="text" name="nombre" required>
+        <label>Correo:</label><input type="email" name="correo" required>
+        <label>Teléfono:</label><input type="text" name="telefono" required>
         <label>Empresa:</label>
         <select name="empresa" required>
-            {% for e in empresas %}
-                <option value="{{ e }}">{{ e if e else 'Seleccione empresa' }}</option>
+            {% for empresa in empresas %}
+            <option value="{{ empresa }}">{{ empresa }}</option>
             {% endfor %}
-        </select><br>
-        <label>Tipo de Problema:</label>
+        </select>
+        <label>Tipo de problema:</label>
         <select name="tipo_problema" required>
-            <option value="bug">Caso</option>
-            <option value="sugerencia">Sugerencia</option>
-            <option value="soporte">Soporte</option>
-        </select><br>
-        <label>Descripción:</label><textarea name="descripcion" required></textarea><br>
-        <label>Archivo (opcional):</label><input type="file" name="archivo"><br>
+            {% for tipo in tipos_problema %}
+            <option value="{{ tipo }}">{{ tipo }}</option>
+            {% endfor %}
+        </select>
+        <label>Descripción:</label>
+        <textarea name="descripcion" required></textarea>
+        <label>Archivo adjunto:</label><input type="file" name="archivo">
         <button type="submit">Enviar</button>
     </form>
+</div>
 </body>
 </html>

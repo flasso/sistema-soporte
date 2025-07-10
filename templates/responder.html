@@ -6,39 +6,23 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-<header>
-  <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" style="height: 50px;">
-  <h1>Responder Incidente</h1>
-</header>
-
-<section>
-  <h2>Detalles del Incidente</h2>
-  <p><strong>Nombre:</strong> {{ incidente.nombre }}</p>
-  <p><strong>Correo:</strong> {{ incidente.correo }}</p>
-  <p><strong>Teléfono:</strong> {{ incidente.telefono }}</p>
-  <p><strong>Empresa:</strong> {{ incidente.empresa }}</p>
-  <p><strong>Tipo:</strong> {{ incidente.tipo_problema }}</p>
-  <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
-  <p>
-    <strong>Archivo:</strong>
+<div class="container">
+    <h1>Responder al incidente #{{ incidente.id }}</h1>
+    <p><strong>Nombre:</strong> {{ incidente.nombre }}</p>
+    <p><strong>Correo:</strong> {{ incidente.correo }}</p>
+    <p><strong>Empresa:</strong> {{ incidente.empresa }}</p>
+    <p><strong>Tipo:</strong> {{ incidente.tipo_problema }}</p>
+    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
     {% if incidente.archivo %}
-      <a href="{{ url_for('static', filename='uploads/' + incidente.archivo) }}" target="_blank">Descargar</a>
-    {% else %}
-      Sin archivo
+    <p><a href="{{ url_for('static', filename='uploads/' ~ incidente.archivo) }}">Descargar archivo adjunto</a></p>
     {% endif %}
-  </p>
-</section>
-
-<form action="{{ url_for('responder', incidente_id=incidente.id) }}" method="post" enctype="multipart/form-data">
-  <label>Respuesta:</label><br>
-  <textarea name="respuesta" required></textarea><br><br>
-
-  <label>Archivo adjunto (opcional):</label><br>
-  <input type="file" name="archivo_respuesta"><br><br>
-
-  <button type="submit">Enviar Respuesta</button>
-</form>
-
-<a href="{{ url_for('admin') }}">Volver al panel</a>
+    <form action="{{ url_for('responder', incidente_id=incidente.id) }}" method="post" enctype="multipart/form-data">
+        <label>Respuesta:</label>
+        <textarea name="respuesta" required></textarea>
+        <label>Archivo adjunto en la respuesta:</label>
+        <input type="file" name="archivo_respuesta">
+        <button type="submit">Enviar respuesta</button>
+    </form>
+</div>
 </body>
 </html>
