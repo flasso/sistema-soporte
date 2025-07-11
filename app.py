@@ -94,13 +94,13 @@ Descripción: {descripcion}"""
         return redirect('/gracias')
 
     empresas = [
-        '', 'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam', 'Century', 'CNM', 
-        'Contructora de Marcas', 'DORTIZ', 'Elite', 'Factorial', 'Grupo One', 'Zelva', 
+        '', 'Acomedios', 'Aldas', 'Adela', 'Asoredes', 'Big Media', 'Cafam', 'Century', 'CNM', 
+        'Contructora de Marcas', 'Dortiz', 'Elite', 'Factorial', 'Grupo One', 'Zelva', 
         'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges', 
         'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV', 
         'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
     ]
-    tipos_problema = ['Bug', 'Solicitud', 'Mejora']
+    tipos_problema = ['Caso', 'Solicitud', 'Mejora']
     return render_template('formulario.html', empresas=empresas, tipos_problema=tipos_problema)
 
 @app.route('/gracias')
