@@ -13,7 +13,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'
-app.config['MAIL_PASSWORD'] = 'yqwm byqv lkft suvx'
+app.config['MAIL_PASSWORD'] = 'vrti crrt nkoa lonl'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
 
 mail = Mail(app)
