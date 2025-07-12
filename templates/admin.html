@@ -1,45 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Panel de Administración</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+<meta charset="UTF-8">
+<title>Panel de Administración</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
-        <h1>Panel de Administración</h1>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Nombre</th>
-                    <th>Cliente</th>
-                    <th>Estado</th>
-                    <th>Adjunto</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for incidente in incidentes %}
-                <tr>
-                    <td>{{ incidente.id }}</td>
-                    <td>{{ incidente.nombre }}</td>
-                    <td>{{ incidente.empresa }}</td>
-                    <td class="{{ 'pendiente' if incidente.estado == 'pendiente' else 'cerrado' }}">{{ incidente.estado }}</td>
-                    <td>
-                        {% if incidente.archivo %}
-                        <a href="{{ url_for('static', filename='uploads/' + incidente.archivo) }}" target="_blank">Ver archivo</a>
-                        {% else %}
-                        Sin archivo
-                        {% endif %}
-                    </td>
-                    <td><a href="{{ url_for('responder', incidente_id=incidente.id) }}">Responder</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div class="container">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+    <h1>Panel de Administración</h1>
+    <table>
+        <tr>
+            <th>ID</th><th>Nombre</th><th>Empresa</th><th>Estado</th><th>Acciones</th>
+        </tr>
+        {% for incidente in incidentes %}
+        <tr class="{{ 'pendiente' if incidente.estado == 'pendiente' else 'cerrado' }}">
+            <td>{{ incidente.id }}</td>
+            <td>{{ incidente.nombre }}</td>
+            <td>{{ incidente.empresa }}</td>
+            <td>{{ incidente.estado }}</td>
+            <td><a href="{{ url_for('responder', incidente_id=incidente.id) }}">Responder</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
 </body>
 </html>

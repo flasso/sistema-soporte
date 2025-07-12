@@ -1,45 +1,24 @@
-@app.route('/responder/<int:incidente_id>', methods=['GET', 'POST'])
-def responder(incidente_id):
-    conn = get_conn()
-    cur = conn.cursor()
-    if request.method == 'POST':
-        respuesta = request.form['respuesta']
-        estado = 'cerrado'
-        fecha_respuesta = now_colombia()
-
-        archivo = request.files.get('archivo_respuesta')
-        archivo_nombre = None
-        if archivo and archivo.filename:
-            archivo_nombre = f"respuesta_{datetime.now().timestamp()}_{archivo.filename}"
-            archivo.save(os.path.join(UPLOAD_FOLDER, archivo_nombre))
-
-        cur.execute("""
-            UPDATE incidentes
-            SET respuesta = %s, archivo_respuesta = %s, fecha_respuesta = %s, estado = %s
-            WHERE id = %s
-        """, (respuesta, archivo_nombre, fecha_respuesta, estado, incidente_id))
-        conn.commit()
-
-        cur.execute("SELECT correo FROM incidentes WHERE id = %s", (incidente_id,))
-        cliente = cur.fetchone()
-
-        msg = Message('Respuesta a su incidente', recipients=[cliente['correo']])
-        msg.body = f"""Su incidente ha sido respondido:
-Respuesta: {respuesta}
-"""
-
-        if archivo_nombre:
-            with open(os.path.join(UPLOAD_FOLDER, archivo_nombre), 'rb') as f:
-                msg.attach(archivo_nombre, "application/octet-stream", f.read())
-
-        mail.send(msg)
-
-        cur.close()
-        conn.close()
-        return redirect('/admin')
-
-    cur.execute("SELECT * FROM incidentes WHERE id = %s", (incidente_id,))
-    incidente = cur.fetchone()
-    cur.close()
-    conn.close()
-    return render_template('responder.html', incidente=incidente)
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Responder Incidente</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<div class="container">
+    <h1>Responder Incidente #{{ incidente.id }}</h1>
+    <p><strong>Nombre:</strong> {{ incidente.nombre }}</p>
+    <p><strong>Empresa:</strong> {{ incidente.empresa }}</p>
+    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
+    {% if incidente.archivo %}
+        <p><strong>Archivo:</strong> <a href="{{ url_for('static', filename='uploads/' ~ incidente.archivo) }}" target="_blank">Descargar</a></p>
+    {% endif %}
+    <form method="post" enctype="multipart/form-data">
+        <label>Respuesta:</label><textarea name="respuesta" required></textarea>
+        <label>Archivo adjunto (opcional):</label><input type="file" name="archivo_respuesta">
+        <button type="submit">Enviar Respuesta</button>
+    </form>
+</div>
+</body>
+</html>

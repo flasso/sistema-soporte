@@ -1,70 +1,50 @@
 body {
     font-family: Arial, sans-serif;
-    background: #f9f9f9;
-    color: #333;
+    background: #f5f5f5;
     margin: 0;
     padding: 0;
 }
-
 .container {
     max-width: 800px;
-    margin: 20px auto;
-    background: #fff;
+    margin: auto;
+    background: white;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-top: 40px;
+    border-radius: 8px;
 }
-
 h1 {
-    color: #0066cc;
+    text-align: center;
 }
-
-form {
-    display: flex;
-    flex-direction: column;
-}
-
-form label {
+label {
+    display: block;
     margin-top: 10px;
 }
-
-form input, form select, form textarea {
+input, select, textarea {
+    width: 100%;
     padding: 8px;
-    margin-top: 5px;
+    margin-top: 4px;
 }
-
 button {
     margin-top: 15px;
-    padding: 10px;
-    background: #0066cc;
-    color: #fff;
-    border: none;
-    cursor: pointer;
+    padding: 10px 20px;
 }
-
-button:hover {
-    background: #004999;
+.logo {
+    display: block;
+    margin: auto;
+    width: 150px;
 }
-
 table {
     width: 100%;
     border-collapse: collapse;
 }
-
 th, td {
+    border: 1px solid #ccc;
     padding: 8px;
-    border-bottom: 1px solid #ddd;
+    text-align: center;
 }
-
-tr.pendiente {
-    background-color: #fff3cd;
+.pendiente {
+    background-color: #ffdddd;
 }
-
-tr.cerrado {
-    background-color: #d4edda;
+.cerrado {
+    background-color: #ddffdd;
 }
-
-.logo {
-    max-height: 80px;
-    margin-bottom: 10px;
-}
-mademelo el z
