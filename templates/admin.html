@@ -2,49 +2,44 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Formulario de Incidente</title>
+    <title>Panel de Administración</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <div class="container">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
-        <h1>Sistema de Gestión de Incidentes</h1>
-        <p>Por favor completa el siguiente formulario para reportar un incidente.</p>
+        <h1>Panel de Administración</h1>
 
-        <form action="/" method="POST" enctype="multipart/form-data">
-            <label>Nombre:</label>
-            <input type="text" name="nombre" required>
-
-            <label>Correo electrónico:</label>
-            <input type="email" name="correo" required>
-
-            <label>Teléfono:</label>
-            <input type="text" name="telefono">
-
-            <label>Cliente:</label>
-            <select name="empresa" required>
-                <option value="" selected disabled>Seleccione un cliente</option>
-                {% for empresa in empresas %}
-                <option value="{{ empresa }}">{{ empresa }}</option>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Adjunto</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for incidente in incidentes %}
+                <tr>
+                    <td>{{ incidente.id }}</td>
+                    <td>{{ incidente.nombre }}</td>
+                    <td>{{ incidente.empresa }}</td>
+                    <td class="{{ 'pendiente' if incidente.estado == 'pendiente' else 'cerrado' }}">{{ incidente.estado }}</td>
+                    <td>
+                        {% if incidente.archivo %}
+                        <a href="{{ url_for('static', filename='uploads/' + incidente.archivo) }}" target="_blank">Ver archivo</a>
+                        {% else %}
+                        Sin archivo
+                        {% endif %}
+                    </td>
+                    <td><a href="{{ url_for('responder', incidente_id=incidente.id) }}">Responder</a></td>
+                </tr>
                 {% endfor %}
-            </select>
-
-            <label>Tipo de Caso:</label>
-            <select name="tipo_problema" required>
-                <option value="" selected disabled>Seleccione un tipo</option>
-                {% for tipo in tipos_problema %}
-                <option value="{{ tipo }}">{{ tipo }}</option>
-                {% endfor %}
-            </select>
-
-            <label>Descripción:</label>
-            <textarea name="descripcion" required></textarea>
-
-            <label>Adjuntar archivo (opcional):</label>
-            <input type="file" name="archivo">
-
-            <button type="submit">Enviar</button>
-        </form>
+            </tbody>
+        </table>
     </div>
 </body>
 </html>
