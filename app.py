@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for
 from flask_mail import Mail, Message
 import psycopg2
 from psycopg2.extras import RealDictCursor
@@ -8,7 +8,7 @@ import os
 
 app = Flask(__name__)
 
-# 📧 Configuración correo
+# Configuración correo
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
@@ -31,12 +31,6 @@ def now_colombia():
 
 @app.route('/', methods=['GET', 'POST'])
 def soporte():
-    empresas = [ '', 'Acomedios', 'Aldas', 'Adela','Asoredes', 'Big Media', 'Cafam', 'Century', 'CNM', 
-        'Contructora de Marcas', 'DORTIZ', 'Elite', 'Factorial', 'Grupo One', 'Zelva', 'Integracion', 
-        'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges', 'Media Agency', 'Media Plus', 
-        'Multimedios', 'New Sapiens', 'OMV', 'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA']
-    tipos_problema = ['Caso', 'Solicitud', 'Mejora']
-
     if request.method == 'POST':
         nombre = request.form['nombre']
         correo = request.form['correo']
@@ -57,12 +51,13 @@ def soporte():
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO incidentes (nombre, correo, telefono, empresa, tipo_problema, descripcion, archivo, fecha_reporte, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-        """, (nombre, correo, telefono, empresa, tipo_problema, descripcion, archivo_nombre, fecha_reporte))
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (nombre, correo, telefono, empresa, tipo_problema, descripcion, archivo_nombre, fecha_reporte, estado))
         conn.commit()
         cur.close()
         conn.close()
 
+        # Enviar correo a soporte
         msg = Message('Nuevo incidente reportado', recipients=['soporte@cloudsoftware.com.co'])
         msg.body = f"""Nuevo incidente:
 Nombre: {nombre}
@@ -70,13 +65,19 @@ Correo: {correo}
 Teléfono: {telefono}
 Empresa: {empresa}
 Tipo: {tipo_problema}
-Descripción: {descripcion}"""
-        if archivo_nombre:
-            msg.attach(archivo.filename, archivo.content_type, open(os.path.join(UPLOAD_FOLDER, archivo_nombre), 'rb').read())
+Descripción: {descripcion}
+"""
         mail.send(msg)
 
         return redirect('/gracias')
 
+    empresas = ['Adela', 'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam', 'Century', 'CNM',
+                'Contructora de Marcas', 'DORTIZ', 'Elite', 'Factorial', 'Grupo One', 'Zelva',
+                'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges', 'Media Agency',
+                'Media Plus', 'Multimedios', 'New Sapiens', 'OMV', 'Quintero y Quintero', 'Servimedios',
+                'Teleantioquia', 'TBWA']
+
+    tipos_problema = ['Caso', 'Solicitud', 'Mejora']
     return render_template('formulario.html', empresas=empresas, tipos_problema=tipos_problema)
 
 @app.route('/gracias')
@@ -87,7 +88,7 @@ def gracias():
 def admin():
     conn = get_conn()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM incidentes ORDER BY fecha_reporte DESC")
+    cur.execute("SELECT * FROM incidentes ORDER BY fecha_reporte DESC;")
     incidentes = cur.fetchall()
     cur.close()
     conn.close()
@@ -118,16 +119,16 @@ def responder(incidente_id):
 
         cur.execute("SELECT correo FROM incidentes WHERE id = %s", (incidente_id,))
         cliente = cur.fetchone()
-
-        msg = Message('Respuesta a su incidente', recipients=[cliente['correo']])
-        msg.body = f"""Su incidente ha sido respondido:
-Respuesta: {respuesta}"""
-        if archivo_nombre:
-            msg.attach(archivo.filename, archivo.content_type, open(os.path.join(UPLOAD_FOLDER, archivo_nombre), 'rb').read())
-        mail.send(msg)
-
         cur.close()
         conn.close()
+
+        # Enviar correo al cliente
+        msg = Message('Respuesta a su incidente', recipients=[cliente['correo']])
+        msg.body = f"""Su incidente ha sido respondido:
+Respuesta: {respuesta}
+"""
+        mail.send(msg)
+
         return redirect('/admin')
 
     cur.execute("SELECT * FROM incidentes WHERE id = %s", (incidente_id,))
@@ -135,19 +136,6 @@ Respuesta: {respuesta}"""
     cur.close()
     conn.close()
     return render_template('responder.html', incidente=incidente)
-
-@app.route('/vaciar')
-def vaciar():
-    clave = request.args.get('clave')
-    if clave != '940402':
-        return "Acceso denegado", 403
-    conn = get_conn()
-    cur = conn.cursor()
-    cur.execute("DELETE FROM incidentes")
-    conn.commit()
-    cur.close()
-    conn.close()
-    return "Base de datos vaciada correctamente"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
