@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Resultado</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% if exito %}
+            <h2>✅ Base de datos vaciada correctamente</h2>
+        {% else %}
+            <h2>❌ Contraseña incorrecta</h2>
+        {% endif %}
+        <a href="{{ url_for('admin') }}">Volver al panel de administración</a>
+    </div>
+</body>
+</html>

@@ -103,6 +103,23 @@ def admin():
     conn.close()
     return render_template('admin.html', incidentes=incidentes)
 
+@app.route('/vaciar', methods=['GET', 'POST'])
+def vaciar():
+    if request.method == 'POST':
+        password = request.form.get('password')
+        if password == '940402':
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute("DELETE FROM incidentes;")
+            conn.commit()
+            cur.close()
+            conn.close()
+            return render_template('vaciar_resultado.html', exito=True)
+        else:
+            return render_template('vaciar_resultado.html', exito=False)
+    return render_template('vaciar.html')
+
+
 
 @app.route('/responder/<int:incidente_id>', methods=['GET', 'POST'])
 def responder(incidente_id):
