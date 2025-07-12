@@ -1,28 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Responder Incidente</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <title>Responder Incidente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-<div class="container">
-    <h1>Responder al incidente #{{ incidente.id }}</h1>
-    <p><strong>Nombre:</strong> {{ incidente.nombre }}</p>
-    <p><strong>Correo:</strong> {{ incidente.correo }}</p>
-    <p><strong>Empresa:</strong> {{ incidente.empresa }}</p>
-    <p><strong>Tipo:</strong> {{ incidente.tipo_problema }}</p>
-    <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
-    {% if incidente.archivo %}
-    <p><a href="{{ url_for('static', filename='uploads/' ~ incidente.archivo) }}">Descargar archivo adjunto</a></p>
-    {% endif %}
-    <form action="{{ url_for('responder', incidente_id=incidente.id) }}" method="post" enctype="multipart/form-data">
-        <label>Respuesta:</label>
-        <textarea name="respuesta" required></textarea>
-        <label>Archivo adjunto en la respuesta:</label>
-        <input type="file" name="archivo_respuesta">
-        <button type="submit">Enviar respuesta</button>
-    </form>
-</div>
+    <div class="container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+        <h1>Responder Incidente</h1>
+
+        <h3>Detalles del incidente</h3>
+        <p><strong>Nombre:</strong> {{ incidente.nombre }}</p>
+        <p><strong>Correo:</strong> {{ incidente.correo }}</p>
+        <p><strong>Teléfono:</strong> {{ incidente.telefono }}</p>
+        <p><strong>Cliente:</strong> {{ incidente.empresa }}</p>
+        <p><strong>Tipo de Caso:</strong> {{ incidente.tipo_problema }}</p>
+        <p><strong>Descripción:</strong> {{ incidente.descripcion }}</p>
+        <p><strong>Archivo adjunto:</strong>
+            {% if incidente.archivo %}
+            <a href="{{ url_for('static', filename='uploads/' + incidente.archivo) }}" target="_blank">Ver archivo</a>
+            {% else %}
+            Sin archivo
+            {% endif %}
+        </p>
+
+        <form method="POST" enctype="multipart/form-data">
+            <label>Respuesta:</label>
+            <textarea name="respuesta" required></textarea>
+
+            <label>Adjuntar archivo de respuesta (opcional):</label>
+            <input type="file" name="archivo_respuesta">
+
+            <button type="submit">Enviar respuesta</button>
+        </form>
+    </div>
 </body>
 </html>
+

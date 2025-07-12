@@ -1,36 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Reporte de Incidente</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <title>Formulario de Incidente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-<div class="container">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
-    <h1>Sistema de Gestión de Incidentes</h1>
-    <p>Bienvenido. Este sistema te permite registrar problemas, sugerencias y solicitudes sobre el software.</p>
-    <form action="/" method="post" enctype="multipart/form-data">
-        <label>Nombre:</label><input type="text" name="nombre" required>
-        <label>Correo:</label><input type="email" name="correo" required>
-        <label>Teléfono:</label><input type="text" name="telefono" required>
-        <label>Empresa:</label>
-        <select name="empresa" required>
-            {% for empresa in empresas %}
-            <option value="{{ empresa }}">{{ empresa }}</option>
-            {% endfor %}
-        </select>
-        <label>Tipo de problema:</label>
-        <select name="tipo_problema" required>
-            {% for tipo in tipos_problema %}
-            <option value="{{ tipo }}">{{ tipo }}</option>
-            {% endfor %}
-        </select>
-        <label>Descripción:</label>
-        <textarea name="descripcion" required></textarea>
-        <label>Archivo adjunto:</label><input type="file" name="archivo">
-        <button type="submit">Enviar</button>
-    </form>
-</div>
+    <div class="container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+        <h1>Sistema de Gestión de Incidentes</h1>
+        <p>Por favor completa el siguiente formulario para reportar un incidente.</p>
+
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+
+            <label>Correo electrónico:</label>
+            <input type="email" name="correo" required>
+
+            <label>Teléfono:</label>
+            <input type="text" name="telefono">
+
+            <label>Cliente:</label>
+            <select name="empresa" required>
+                <option value="" selected disabled>Seleccione un cliente</option>
+                {% for empresa in empresas %}
+                <option value="{{ empresa }}">{{ empresa }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Tipo de Caso:</label>
+            <select name="tipo_problema" required>
+                <option value="" selected disabled>Seleccione un tipo</option>
+                {% for tipo in tipos_problema %}
+                <option value="{{ tipo }}">{{ tipo }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Descripción:</label>
+            <textarea name="descripcion" required></textarea>
+
+            <label>Adjuntar archivo (opcional):</label>
+            <input type="file" name="archivo">
+
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
 </body>
 </html>

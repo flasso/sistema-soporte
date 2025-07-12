@@ -1,28 +1,50 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Administración</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta charset="UTF-8">
+    <title>Formulario de Incidente</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-<div class="container">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
-    <h1>Panel de Administración</h1>
-    <table>
-        <tr>
-            <th>ID</th><th>Nombre</th><th>Empresa</th><th>Estado</th><th>Acciones</th>
-        </tr>
-        {% for i in incidentes %}
-        <tr class="{{ 'pendiente' if i.estado == 'pendiente' else 'cerrado' }}">
-            <td>{{ i.id }}</td>
-            <td>{{ i.nombre }}</td>
-            <td>{{ i.empresa }}</td>
-            <td>{{ i.estado }}</td>
-            <td><a href="{{ url_for('responder', incidente_id=i.id) }}">Responder</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-</div>
+    <div class="container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
+        <h1>Sistema de Gestión de Incidentes</h1>
+        <p>Por favor completa el siguiente formulario para reportar un incidente.</p>
+
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <label>Nombre:</label>
+            <input type="text" name="nombre" required>
+
+            <label>Correo electrónico:</label>
+            <input type="email" name="correo" required>
+
+            <label>Teléfono:</label>
+            <input type="text" name="telefono">
+
+            <label>Cliente:</label>
+            <select name="empresa" required>
+                <option value="" selected disabled>Seleccione un cliente</option>
+                {% for empresa in empresas %}
+                <option value="{{ empresa }}">{{ empresa }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Tipo de Caso:</label>
+            <select name="tipo_problema" required>
+                <option value="" selected disabled>Seleccione un tipo</option>
+                {% for tipo in tipos_problema %}
+                <option value="{{ tipo }}">{{ tipo }}</option>
+                {% endfor %}
+            </select>
+
+            <label>Descripción:</label>
+            <textarea name="descripcion" required></textarea>
+
+            <label>Adjuntar archivo (opcional):</label>
+            <input type="file" name="archivo">
+
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
 </body>
 </html>
