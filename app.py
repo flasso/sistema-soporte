@@ -15,6 +15,7 @@ app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'soporte@cloudsoftware.com.co'
 app.config['MAIL_PASSWORD'] = 'zuig guvt xgzj rwlq'
 app.config['MAIL_DEFAULT_SENDER'] = 'soporte@cloudsoftware.com.co'
+
 mail = Mail(app)
 
 DB_URL = "postgresql://sistema_soporte_db_user:GQV2H65J4INWg1fYJCFmwcKwovOPQLRn@dpg-d1lhq7p5pdvs73c0acn0-a/sistema_soporte_db"
@@ -51,13 +52,12 @@ def soporte():
         cur = conn.cursor()
         cur.execute("""
             INSERT INTO incidentes (nombre, correo, telefono, empresa, tipo_problema, descripcion, archivo, fecha_reporte, estado)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (nombre, correo, telefono, empresa, tipo_problema, descripcion, archivo_nombre, fecha_reporte, estado))
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (nombre, correo, telefono, empresa, tipo_problema, descripcion, archivo_nombre, fecha_reporte))
         conn.commit()
         cur.close()
         conn.close()
 
-        # Enviar correo a soporte
         msg = Message('Nuevo incidente reportado', recipients=['soporte@cloudsoftware.com.co'])
         msg.body = f"""Nuevo incidente:
 Nombre: {nombre}
@@ -71,12 +71,13 @@ Descripción: {descripcion}
 
         return redirect('/gracias')
 
-    empresas = ['Adela', 'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam', 'Century', 'CNM',
-                'Contructora de Marcas', 'DORTIZ', 'Elite', 'Factorial', 'Grupo One', 'Zelva',
-                'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges', 'Media Agency',
-                'Media Plus', 'Multimedios', 'New Sapiens', 'OMV', 'Quintero y Quintero', 'Servimedios',
-                'Teleantioquia', 'TBWA']
-
+    empresas = [
+        '', 'Adela', 'Acomedios', 'Aldas', 'Asoredes', 'Big Media', 'Cafam', 'Century', 'CNM',
+        'Contructora de Marcas', 'DORTIZ', 'Elite', 'Factorial', 'Grupo One', 'Zelva',
+        'Integracion', 'Inversiones CNM', 'JH Hoyos', 'Jaime Uribe', 'Maproges',
+        'Media Agency', 'Media Plus', 'Multimedios', 'New Sapiens', 'OMV',
+        'Quintero y Quintero', 'Servimedios', 'Teleantioquia', 'TBWA'
+    ]
     tipos_problema = ['Caso', 'Solicitud', 'Mejora']
     return render_template('formulario.html', empresas=empresas, tipos_problema=tipos_problema)
 
@@ -98,7 +99,6 @@ def admin():
 def responder(incidente_id):
     conn = get_conn()
     cur = conn.cursor()
-
     if request.method == 'POST':
         respuesta = request.form['respuesta']
         estado = 'cerrado'
@@ -119,16 +119,19 @@ def responder(incidente_id):
 
         cur.execute("SELECT correo FROM incidentes WHERE id = %s", (incidente_id,))
         cliente = cur.fetchone()
-        cur.close()
-        conn.close()
 
-        # Enviar correo al cliente
         msg = Message('Respuesta a su incidente', recipients=[cliente['correo']])
         msg.body = f"""Su incidente ha sido respondido:
 Respuesta: {respuesta}
 """
+        if archivo_nombre:
+            with open(os.path.join(UPLOAD_FOLDER, archivo_nombre), 'rb') as f:
+                msg.attach(archivo_nombre, "application/octet-stream", f.read())
+
         mail.send(msg)
 
+        cur.close()
+        conn.close()
         return redirect('/admin')
 
     cur.execute("SELECT * FROM incidentes WHERE id = %s", (incidente_id,))
