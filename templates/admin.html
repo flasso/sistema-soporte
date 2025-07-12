@@ -11,13 +11,25 @@
     <h1>Panel de Administración</h1>
     <table>
         <tr>
-            <th>ID</th><th>Nombre</th><th>Empresa</th><th>Estado</th><th>Acciones</th>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Empresa</th>
+            <th>Archivo</th>
+            <th>Estado</th>
+            <th>Acciones</th>
         </tr>
         {% for incidente in incidentes %}
         <tr class="{{ 'pendiente' if incidente.estado == 'pendiente' else 'cerrado' }}">
             <td>{{ incidente.id }}</td>
             <td>{{ incidente.nombre }}</td>
             <td>{{ incidente.empresa }}</td>
+            <td>
+                {% if incidente.archivo %}
+                    <a href="{{ url_for('static', filename='uploads/' ~ incidente.archivo) }}" target="_blank">Ver archivo</a>
+                {% else %}
+                    —
+                {% endif %}
+            </td>
             <td>{{ incidente.estado }}</td>
             <td><a href="{{ url_for('responder', incidente_id=incidente.id) }}">Responder</a></td>
         </tr>
